@@ -61,7 +61,7 @@ export function WitheListModal({ isOpen, onClose }: WitheListModalProps) {
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10"
-                    aria-label="Cerrar"
+                    aria-label="Close"
                 >
                     <X className="h-5 w-5" />
                 </button>
@@ -75,13 +75,13 @@ export function WitheListModal({ isOpen, onClose }: WitheListModalProps) {
 
                         {/* Title */}
                         <h2 className="text-3xl font-bold mb-3 text-foreground text-center">
-                            Únete a la Waitlist
+                            Join the Waitlist
                         </h2>
 
                         {/* Description */}
                         <p className="mb-8 text-muted-foreground text-center">
-                            Sé de los primeros en acceder a <span className="text-primary font-semibold">TransactEase</span>.
-                            Te notificaremos cuando estemos listos para lanzar.
+                            Be among the first to access <span className="text-primary font-semibold">TransactEase</span>.
+                            We'll notify you when we're ready to launch.
                         </p>
 
                         {/* Form */}
@@ -91,7 +91,7 @@ export function WitheListModal({ isOpen, onClose }: WitheListModalProps) {
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                 <input
                                     type="email"
-                                    placeholder="tu@email.com"
+                                    placeholder="you@email.com"
                                     className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
                                     value={user.email}
                                     onChange={e => setUser({ ...user, email: e.target.value })}
@@ -105,7 +105,7 @@ export function WitheListModal({ isOpen, onClose }: WitheListModalProps) {
                                 <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                 <input
                                     type="text"
-                                    placeholder="Tu nombre"
+                                    placeholder="Your name"
                                     className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
                                     value={user.name}
                                     onChange={e => setUser({ ...user, name: e.target.value })}
@@ -120,13 +120,13 @@ export function WitheListModal({ isOpen, onClose }: WitheListModalProps) {
                                 disabled={isSubmitting}
                                 className="w-full gradient-primary text-white py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isSubmitting ? "Enviando..." : "¡Quiero unirme!"}
+                                {isSubmitting ? "Sending..." : "I want to join!"}
                             </button>
                         </form>
 
                         {/* Footer Note */}
                         <p className="text-xs text-muted-foreground text-center mt-6">
-                            No spam. Solo te contactaremos cuando lancemos. Puedes darte de baja en cualquier momento.
+                            No spam. We'll only contact you when we launch. You can unsubscribe at any time.
                         </p>
                     </>
                 ) : (
@@ -138,10 +138,10 @@ export function WitheListModal({ isOpen, onClose }: WitheListModalProps) {
                             </svg>
                         </div>
                         <h3 className="text-2xl font-bold text-foreground mb-3">
-                            ¡Bienvenido a bordo!
+                            Welcome aboard!
                         </h3>
                         <p className="text-muted-foreground">
-                            Te hemos agregado a la lista. Te notificaremos pronto.
+                            We've added you to the list. We'll notify you soon.
                         </p>
                     </div>
                 )}

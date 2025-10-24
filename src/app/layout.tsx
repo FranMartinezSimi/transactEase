@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TransactEase - Documentos Seguros con Auditoría Forense",
-  description: "Comparte documentos sensibles con auto-destrucción, cifrado automático y auditoría forense completa. Perfecto para compliance GDPR, HIPAA y más.",
-  keywords: ["documentos seguros", "auditoría forense", "auto-destrucción", "compliance", "GDPR", "HIPAA", "archivo temporal"],
+  title: "TransactEase - Secure Documents with Forensic Audit",
+  description: "Share sensitive documents with self-destruction, automatic encryption, and complete forensic audit trail. Perfect for GDPR, HIPAA compliance and more.",
+  keywords: ["secure documents", "forensic audit", "self-destruction", "compliance", "GDPR", "HIPAA", "temporary file", "document tracking"],
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="dark">
+    <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

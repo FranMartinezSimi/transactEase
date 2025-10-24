@@ -20,15 +20,15 @@ export default function ComingSoonPage() {
 
           {/* Title */}
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-            Próximamente
+            Coming Soon
           </h1>
 
           {/* Subtitle */}
           <p className="text-xl text-muted-foreground mb-8">
-            Estamos construyendo algo increíble.
+            We're building something incredible.
             <br />
             <span className="text-primary font-semibold">
-              Documentos seguros con auditoría forense completa.
+              Secure documents with complete forensic audit.
             </span>
           </p>
 
@@ -37,39 +37,39 @@ export default function ComingSoonPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50 border border-border">
               <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Auto-Destrucción</h3>
+                <h3 className="font-semibold text-foreground mb-1">Self-Destruction</h3>
                 <p className="text-sm text-muted-foreground">
-                  Enlaces temporales que expiran automáticamente
+                  Temporary links that expire automatically
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50 border border-border">
-              <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Auditoría Forense</h3>
+                <h3 className="font-semibold text-foreground mb-1">Forensic Audit</h3>
                 <p className="text-sm text-muted-foreground">
-                  Timeline completo de cada acceso con IP y ubicación
+                  Complete timeline of every access with IP and location
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50 border border-border">
-              <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-foreground mb-1">Compliance</h3>
                 <p className="text-sm text-muted-foreground">
-                  GDPR, HIPAA ready con exports para auditorías
+                  GDPR, HIPAA ready with exports for audits
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50 border border-border">
-              <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Gestión Empresarial</h3>
+                <h3 className="font-semibold text-foreground mb-1">Enterprise Management</h3>
                 <p className="text-sm text-muted-foreground">
-                  Admin crea usuarios y configura políticas
+                  Admin creates users and configures policies
                 </p>
               </div>
             </div>
@@ -79,16 +79,16 @@ export default function ComingSoonPage() {
           <div className="bg-primary/10 border border-primary/30 rounded-lg p-6 mb-8">
             <div className="flex items-center justify-center gap-2 mb-3">
               <Bell className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold text-foreground">¿Quieres ser de los primeros?</h3>
+              <h3 className="font-semibold text-foreground">Want to be among the first?</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Regístrate para acceso anticipado y notificaciones de lanzamiento.
+              Register for early access and launch notifications.
             </p>
             <a
-              href="mailto:contacto@transactease.com?subject=Early Access Request"
+              href="mailto:contact@transactease.com?subject=Early Access Request"
               className="inline-block px-6 py-3 gradient-primary rounded-lg text-white font-semibold hover:shadow-lg transition-all"
             >
-              Solicitar Early Access
+              Request Early Access
             </a>
           </div>
 
@@ -97,15 +97,15 @@ export default function ComingSoonPage() {
             href="/"
             className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
-            ← Volver al inicio
+            ← Back to home
           </Link>
         </div>
 
         {/* Footer Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Mientras tanto, conoce más sobre TransactEase en nuestra{" "}
+          Meanwhile, learn more about TransactEase on our{" "}
           <Link href="/" className="text-primary hover:underline">
-            página principal
+            main page
           </Link>
         </p>
       </div>
