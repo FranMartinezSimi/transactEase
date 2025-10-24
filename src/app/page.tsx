@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { WitheListModal } from "./components/ui/withelist.modal";
 import {
   Shield,
   Lock,
@@ -17,6 +21,7 @@ import {
 } from "lucide-react";
 
 export default function LandingPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -27,12 +32,6 @@ export default function LandingPage() {
               <Shield className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold text-foreground">TransactEase</span>
             </div>
-            <Link
-              href="/auth"
-              className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
-            >
-              Iniciar Sesión
-            </Link>
           </div>
         </div>
       </header>
@@ -68,13 +67,7 @@ export default function LandingPage() {
                   href="/auth"
                   className="text-lg px-8 py-4 gradient-primary border-0 shadow-lg hover:shadow-xl transition-all rounded-lg text-white font-semibold"
                 >
-                  Comenzar Gratis
-                </Link>
-                <Link
-                  href="#features"
-                  className="text-lg px-8 py-4 border-2 border-border hover:bg-card rounded-lg font-semibold transition-all"
-                >
-                  Ver Demo
+                  Comming soon
                 </Link>
               </div>
 
@@ -320,20 +313,16 @@ export default function LandingPage() {
                 y <span className="text-primary font-semibold">auditoría forense que salva auditorías</span>.
               </p>
 
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Link
-                  href="/auth"
-                  className="text-lg px-8 py-4 gradient-primary border-0 shadow-lg hover:shadow-xl transition-all rounded-lg text-white font-semibold"
+                <button
+                  className="px-8 py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-lg shadow-lg hover:bg-primary/90 transition"
+                  onClick={() => setIsModalOpen(true)}
                 >
-                  Empezar Gratis Ahora
-                </Link>
-                <Link
-                  href="mailto:contacto@transactease.com"
-                  className="text-lg px-8 py-4 border-2 border-primary hover:bg-primary/5 rounded-lg font-semibold transition-all"
-                >
-                  Hablar con Ventas
-                </Link>
+                  Join to the waitlist
+                </button>
               </div>
+              <WitheListModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">

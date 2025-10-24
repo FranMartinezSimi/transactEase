@@ -35,7 +35,7 @@ export default function ComingSoonPage() {
           {/* Features Preview */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-left">
             <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50 border border-border">
-              <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-foreground mb-1">Auto-Destrucción</h3>
                 <p className="text-sm text-muted-foreground">
