@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { X, Mail, User, Rocket } from "lucide-react";
 
 interface WaitlistModalProps {

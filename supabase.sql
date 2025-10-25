@@ -1,0 +1,247 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.ComplianceCheck (
+  id text NOT NULL,
+  deliveryId uuid NOT NULL,
+  riskLevel text NOT NULL,
+  containsPII boolean NOT NULL,
+  containsPHI boolean NOT NULL,
+  containsFinancial boolean NOT NULL,
+  detectedTypes ARRAY,
+  confidence double precision NOT NULL,
+  scanProvider text NOT NULL,
+  scanDuration integer NOT NULL,
+  metadata jsonb,
+  blockedReason text,
+  createdAt timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT ComplianceCheck_pkey PRIMARY KEY (id),
+  CONSTRAINT ComplianceCheck_deliveryId_fkey FOREIGN KEY (deliveryId) REFERENCES public.deliveries(id)
+);
+CREATE TABLE public._prisma_migrations (
+  id character varying NOT NULL,
+  checksum character varying NOT NULL,
+  finished_at timestamp with time zone,
+  migration_name character varying NOT NULL,
+  logs text,
+  rolled_back_at timestamp with time zone,
+  started_at timestamp with time zone NOT NULL DEFAULT now(),
+  applied_steps_count integer NOT NULL DEFAULT 0,
+  CONSTRAINT _prisma_migrations_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.access_logs (
+  id uuid NOT NULL,
+  delivery_id uuid NOT NULL,
+  action text NOT NULL,
+  ip_address text,
+  user_agent text,
+  metadata jsonb,
+  success boolean NOT NULL DEFAULT true,
+  timestamp timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT access_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT access_logs_delivery_id_fkey FOREIGN KEY (delivery_id) REFERENCES public.deliveries(id)
+);
+CREATE TABLE public.compliance_reports (
+  id uuid NOT NULL,
+  report_type text NOT NULL,
+  generated_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  period_from timestamp with time zone NOT NULL,
+  period_to timestamp with time zone NOT NULL,
+  total_documents integer NOT NULL,
+  compliant_docs integer NOT NULL,
+  violations integer NOT NULL,
+  risk_score double precision NOT NULL,
+  report_data jsonb NOT NULL,
+  digital_signature text NOT NULL,
+  certificate_hash character varying NOT NULL,
+  metadata jsonb,
+  CONSTRAINT compliance_reports_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.cryptographic_keys (
+  id uuid NOT NULL,
+  key_id text NOT NULL,
+  algorithm text NOT NULL DEFAULT 'RSA-2048'::text,
+  public_key text NOT NULL,
+  private_key text,
+  purpose text NOT NULL,
+  status text NOT NULL DEFAULT 'active'::text,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  expires_at timestamp with time zone,
+  revoked_at timestamp with time zone,
+  metadata jsonb,
+  CONSTRAINT cryptographic_keys_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.custody_chain (
+  id uuid NOT NULL,
+  document_id uuid NOT NULL,
+  action text NOT NULL,
+  actor_id uuid NOT NULL,
+  actor_email text NOT NULL,
+  ip_address text NOT NULL,
+  user_agent text NOT NULL,
+  hash character varying NOT NULL,
+  previous_hash character varying,
+  signature text NOT NULL,
+  metadata jsonb,
+  timestamp timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT custody_chain_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.deliveries (
+  id uuid NOT NULL,
+  sender_id uuid NOT NULL,
+  organization_id uuid NOT NULL,
+  title text NOT NULL,
+  message text,
+  recipient_email text NOT NULL,
+  expires_at timestamp with time zone NOT NULL,
+  current_views integer NOT NULL DEFAULT 0,
+  max_views integer NOT NULL,
+  current_downloads integer NOT NULL DEFAULT 0,
+  max_downloads integer NOT NULL,
+  status text NOT NULL DEFAULT 'active'::text,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL,
+  password_hash text,
+  require_authentication boolean NOT NULL DEFAULT false,
+  CONSTRAINT deliveries_pkey PRIMARY KEY (id),
+  CONSTRAINT deliveries_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id),
+  CONSTRAINT deliveries_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.delivery_files (
+  id uuid NOT NULL,
+  delivery_id uuid NOT NULL,
+  filename text NOT NULL,
+  original_name text NOT NULL,
+  mime_type text NOT NULL,
+  size bigint NOT NULL,
+  storage_path text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT delivery_files_pkey PRIMARY KEY (id),
+  CONSTRAINT delivery_files_delivery_id_fkey FOREIGN KEY (delivery_id) REFERENCES public.deliveries(id)
+);
+CREATE TABLE public.delivery_templates (
+  id uuid NOT NULL,
+  organization_id uuid NOT NULL,
+  name text NOT NULL,
+  description text,
+  expires_in_hours integer NOT NULL,
+  max_views integer NOT NULL,
+  max_downloads integer NOT NULL,
+  message text,
+  require_authentication boolean NOT NULL DEFAULT false,
+  password_enabled boolean NOT NULL DEFAULT false,
+  is_default boolean NOT NULL DEFAULT false,
+  created_by uuid NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL,
+  CONSTRAINT delivery_templates_pkey PRIMARY KEY (id),
+  CONSTRAINT delivery_templates_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.profiles(id),
+  CONSTRAINT delivery_templates_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id)
+);
+CREATE TABLE public.digital_signatures (
+  id uuid NOT NULL,
+  delivery_id uuid NOT NULL,
+  signature text NOT NULL,
+  algorithm text NOT NULL DEFAULT 'RSA-SHA256'::text,
+  public_key_id uuid NOT NULL,
+  signed_data jsonb NOT NULL,
+  signed_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  valid_until timestamp with time zone NOT NULL,
+  is_valid boolean NOT NULL DEFAULT true,
+  revoked_at timestamp with time zone,
+  metadata jsonb,
+  CONSTRAINT digital_signatures_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.document_hashes (
+  id uuid NOT NULL,
+  document_id uuid NOT NULL,
+  delivery_id uuid NOT NULL,
+  original_filename text NOT NULL,
+  hash character varying NOT NULL,
+  algorithm text NOT NULL DEFAULT 'SHA-256'::text,
+  file_size bigint NOT NULL,
+  mime_type text NOT NULL,
+  hashed_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL,
+  tamper_detected boolean NOT NULL DEFAULT false,
+  last_verified_at timestamp with time zone,
+  metadata jsonb,
+  CONSTRAINT document_hashes_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.organizations (
+  id uuid NOT NULL,
+  name text NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL,
+  email_whitelist ARRAY DEFAULT ARRAY[]::text[],
+  email_blacklist ARRAY DEFAULT ARRAY[]::text[],
+  ip_whitelist ARRAY DEFAULT ARRAY[]::text[],
+  ip_blacklist ARRAY DEFAULT ARRAY[]::text[],
+  phone_whitelist ARRAY DEFAULT ARRAY[]::text[],
+  only_internal_domain boolean NOT NULL DEFAULT false,
+  max_expiration_hours integer,
+  min_expiration_hours integer,
+  max_views integer,
+  max_downloads integer,
+  internal_domain text,
+  logo_url text,
+  CONSTRAINT organizations_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL,
+  organization_id uuid,
+  email text NOT NULL,
+  full_name text NOT NULL,
+  role text NOT NULL DEFAULT 'member'::text,
+  is_active boolean NOT NULL DEFAULT true,
+  email_verified boolean NOT NULL DEFAULT false,
+  suspended_at timestamp with time zone,
+  last_login_at timestamp with time zone,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL,
+  expires_at timestamp with time zone,
+  is_temporary boolean NOT NULL DEFAULT false,
+  password_used boolean NOT NULL DEFAULT false,
+  temporary_password text,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id)
+);
+CREATE TABLE public.security_alerts (
+  id uuid NOT NULL,
+  delivery_id uuid NOT NULL,
+  type text NOT NULL,
+  severity text NOT NULL,
+  title text NOT NULL,
+  description text,
+  metadata jsonb,
+  status text NOT NULL DEFAULT 'open'::text,
+  resolved_at timestamp with time zone,
+  resolved_by uuid,
+  resolution_notes text,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT security_alerts_pkey PRIMARY KEY (id),
+  CONSTRAINT security_alerts_delivery_id_fkey FOREIGN KEY (delivery_id) REFERENCES public.deliveries(id),
+  CONSTRAINT security_alerts_resolved_by_fkey FOREIGN KEY (resolved_by) REFERENCES public.profiles(id)
+);
+CREATE TABLE public.subscriptions (
+  id uuid NOT NULL,
+  organization_id uuid NOT NULL,
+  plan text NOT NULL DEFAULT 'free'::text,
+  status text NOT NULL DEFAULT 'trialing'::text,
+  max_deliveries_per_month integer NOT NULL DEFAULT 10,
+  max_storage_gb integer NOT NULL DEFAULT 1,
+  max_users integer NOT NULL DEFAULT 3,
+  max_file_size integer NOT NULL DEFAULT 10,
+  ai_compliance_enabled boolean NOT NULL DEFAULT false,
+  deliveries_this_month integer NOT NULL DEFAULT 0,
+  storage_used_gb double precision NOT NULL DEFAULT 0,
+  last_reset_at timestamp with time zone,
+  trial_ends_at timestamp with time zone,
+  current_period_start timestamp with time zone,
+  current_period_end timestamp with time zone,
+  canceled_at timestamp with time zone,
+  created_at timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone NOT NULL,
+  CONSTRAINT subscriptions_pkey PRIMARY KEY (id),
+  CONSTRAINT subscriptions_organization_id_fkey FOREIGN KEY (organization_id) REFERENCES public.organizations(id)
+);

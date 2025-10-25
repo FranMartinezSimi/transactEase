@@ -41,11 +41,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // TODO: Para rutas protegidas con auth, agrega:
-  // const token = request.cookies.get('auth-token')
-  // if (!token && pathname.startsWith('/dashboard')) {
-  //   return NextResponse.redirect(new URL('/auth', request.url))
-  // }
+  // Permitir rutas protegidas (dashboard, onboarding)
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/onboarding')) {
+    return NextResponse.next()
+  }
+
+  // Permitir API routes
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next()
+  }
 
   // Por defecto, redirigir a coming soon
   console.log(`🚧 Ruta en desarrollo: ${pathname} → redirigiendo a /coming-soon`)

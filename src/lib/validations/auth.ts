@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { emailValidator, passwordValidator, nameValidator, uuidValidator } from "./common"
 
 /**
  * Auth Validation Schemas
@@ -7,23 +8,10 @@ import { z } from "zod"
  * They ensure type safety and data integrity across the auth flow.
  */
 
-// Common field validations
-const email = z
-  .string()
-  .min(1, "Email is required")
-  .email("Invalid email address")
-
-const password = z
-  .string()
-  .min(8, "Password must be at least 8 characters")
-  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-  .regex(/[0-9]/, "Password must contain at least one number")
-
-const name = z
-  .string()
-  .min(2, "Name must be at least 2 characters")
-  .max(50, "Name must be less than 50 characters")
+// Re-export common validators for backward compatibility
+const email = emailValidator
+const password = passwordValidator
+const name = nameValidator
 
 // Login Schema
 export const loginSchema = z.object({
@@ -94,3 +82,83 @@ export const updateProfileSchema = z.object({
 })
 
 export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>
+
+// =====================================================
+// OAUTH VALIDATION
+// =====================================================
+
+/**
+ * OAuth callback validation
+ * Validates the code from OAuth redirect
+ */
+export const oauthCallbackSchema = z.object({
+  code: z.string().min(1, "Authorization code is required"),
+  state: z.string().optional(),
+})
+
+export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>
+
+// =====================================================
+// INVITATION HANDLING
+// =====================================================
+
+/**
+ * Accept organization invitation
+ */
+export const acceptInvitationSchema = z.object({
+  token: z.string().min(1, "Invitation token is required"),
+})
+
+export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>
+
+/**
+ * Create invitation (admin/owner only)
+ */
+export const createInvitationSchema = z.object({
+  email,
+  role: z.enum(["owner", "admin", "member"], {
+    errorMap: () => ({ message: "Invalid role" }),
+  }),
+  organizationId: uuidValidator,
+  expiresInDays: z
+    .number()
+    .int()
+    .min(1, "Must expire in at least 1 day")
+    .max(30, "Cannot expire after 30 days")
+    .default(7),
+})
+
+export type CreateInvitationInput = z.infer<typeof createInvitationSchema>
+
+// =====================================================
+// TEMPORARY USER AUTH
+// =====================================================
+
+/**
+ * Create temporary user for external recipient
+ * Used when sending documents outside organization
+ */
+export const createTemporaryUserSchema = z.object({
+  email,
+  deliveryId: uuidValidator,
+  expiresInHours: z
+    .number()
+    .int()
+    .min(1, "Must expire in at least 1 hour")
+    .max(720, "Cannot expire after 30 days") // 30 days max
+    .default(48), // 48 hours default
+})
+
+export type CreateTemporaryUserInput = z.infer<typeof createTemporaryUserSchema>
+
+/**
+ * Temporary user login
+ * Password is auto-generated and sent via email
+ */
+export const temporaryUserLoginSchema = z.object({
+  email,
+  temporaryPassword: z.string().min(1, "Temporary password is required"),
+  deliveryId: uuidValidator.optional(),
+})
+
+export type TemporaryUserLoginInput = z.infer<typeof temporaryUserLoginSchema>

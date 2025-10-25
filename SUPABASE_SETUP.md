@@ -8,8 +8,8 @@ Esta guía te llevará paso a paso para configurar Supabase y habilitar Google O
 
 ## 📋 Prerrequisitos
 
-- [ ] Cuenta en [Supabase](https://supabase.com) (gratis)
-- [ ] Cuenta en [Google Cloud Console](https://console.cloud.google.com) (gratis)
+- [x ] Cuenta en [Supabase](https://supabase.com) (gratis)
+- [ x] Cuenta en [Google Cloud Console](https://console.cloud.google.com) (gratis)
 - [ ] Proyecto Next.js corriendo en local
 
 ---
