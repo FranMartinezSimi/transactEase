@@ -60,7 +60,7 @@ export type DateRange = z.infer<typeof dateRangeSchema>
 // Search/Filter
 export const searchSchema = z.object({
   query: z.string().min(1, "Search query is required").max(100),
-  filters: z.record(z.string()).optional()
+  filters: z.record(z.string(), z.string()).optional()
 })
 
 export type SearchParams = z.infer<typeof searchSchema>

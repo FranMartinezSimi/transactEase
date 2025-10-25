@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Mail, Lock, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { OAuthButton } from "@/components/auth/oauth-button"
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -51,6 +52,15 @@ export default function LoginPage() {
         </div>
       }
     >
+      <div className="flex flex-row w-full align-middle justify-center">
+        <OAuthButton
+          provider="Google"
+          text="Sign in with Google"
+          onClick={async () => {
+            // TODO: Implement Google sign-in logic
+          }}
+        />
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Email Field */}
         <div className="space-y-2">
