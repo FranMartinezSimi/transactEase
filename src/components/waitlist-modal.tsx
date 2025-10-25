@@ -31,19 +31,41 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         e.preventDefault();
         setIsSubmitting(true);
 
-        // TODO: Aquí integrar con tu API o servicio de email
-        // Por ahora solo simula el envío
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            const response = await fetch('/api/waitlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: user.email,
+                    name: user.name,
+                }),
+            });
 
-        setSubmitted(true);
-        setIsSubmitting(false);
+            const data = await response.json();
 
-        // Limpiar y cerrar después de 2 segundos
-        setTimeout(() => {
-            setUser({ email: "", name: "" });
-            setSubmitted(false);
-            onClose();
-        }, 2000);
+            if (!response.ok) {
+                console.error('Failed to join waitlist:', data.error);
+                alert('Failed to join waitlist. Please try again.');
+                setIsSubmitting(false);
+                return;
+            }
+
+            setSubmitted(true);
+            setIsSubmitting(false);
+
+            // Limpiar y cerrar después de 2 segundos
+            setTimeout(() => {
+                setUser({ email: "", name: "" });
+                setSubmitted(false);
+                onClose();
+            }, 2000);
+        } catch (error) {
+            console.error('Error submitting waitlist:', error);
+            alert('An error occurred. Please try again.');
+            setIsSubmitting(false);
+        }
     };
 
     return (
