@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TransactEase - Secure Documents with Forensic Audit",
+  title: "Sealdrop - Secure Documents with Forensic Audit",
   description: "Share sensitive documents with self-destruction, automatic encryption, and complete forensic audit trail. Perfect for GDPR, HIPAA compliance and more.",
   keywords: ["secure documents", "forensic audit", "self-destruction", "compliance", "GDPR", "HIPAA", "temporary file", "document tracking"],
 };

@@ -1,14 +1,22 @@
+"use client"
+
 import Link from "next/link";
+import { useState } from "react";
 import { Shield, Rocket, Bell, CheckCircle2 } from "lucide-react";
+import { WaitlistModal } from "@/components/waitlist-modal";
+import Image from "next/image";
+import Logo from "../../../public/Sealdrop.svg";
 
 export default function ComingSoonPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <Shield className="h-12 w-12 text-primary" />
-          <span className="text-3xl font-bold text-foreground">TransactEase</span>
+          <Image src={Logo} alt="Sealdrop Logo" className="h-30 w-30" />
+          <span className="text-3xl font-bold text-foreground">Seladrop</span>
         </div>
 
         {/* Main Content */}
@@ -84,13 +92,15 @@ export default function ComingSoonPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Register for early access and launch notifications.
             </p>
-            <a
-              href="mailto:contact@transactease.com?subject=Early Access Request"
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="inline-block px-6 py-3 gradient-primary rounded-lg text-white font-semibold hover:shadow-lg transition-all"
             >
               Request Early Access
-            </a>
+            </button>
           </div>
+
+          <WaitlistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
           {/* Back to Home */}
           <Link
@@ -103,7 +113,7 @@ export default function ComingSoonPage() {
 
         {/* Footer Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Meanwhile, learn more about TransactEase on our{" "}
+          Meanwhile, learn more about Sealdrop on our{" "}
           <Link href="/" className="text-primary hover:underline">
             main page
           </Link>

@@ -26,6 +26,7 @@ export function middleware(request: NextRequest) {
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/public') ||
+    pathname.startsWith('/api/waitlist') || // Permitir API de waitlist
     pathname.includes('.') // Archivos como favicon.ico, images, etc.
   ) {
     return NextResponse.next()

@@ -90,7 +90,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Create your account"
-      description="Get started with TransactEase in seconds"
+      description="Get started with Sealdrop in seconds"
       footer={
         <div className="w-full space-y-4">
           <div className="text-center">

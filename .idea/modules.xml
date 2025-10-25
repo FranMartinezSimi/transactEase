@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/transactease-mvp.iml" filepath="$PROJECT_DIR$/.idea/transactease-mvp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/sealdrop-mvp.iml"
+        filepath="$PROJECT_DIR$/.idea/sealdrop-mvp.iml" />
     </modules>
   </component>
 </project>
