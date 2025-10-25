@@ -62,7 +62,7 @@ export default function LandingPage() {
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
+              {/* <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
                 <Link
                   href="/auth/register"
                   className="text-lg px-8 py-4 gradient-primary border-0 shadow-lg hover:shadow-xl transition-all rounded-lg text-white font-semibold"
@@ -75,7 +75,7 @@ export default function LandingPage() {
                 >
                   Sign In
                 </Link>
-              </div>
+              </div> */}
 
               {/* Trust Indicators */}
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">

@@ -1,7 +1,13 @@
+"use client"
+
 import Link from "next/link";
+import { useState } from "react";
 import { Shield, Rocket, Bell, CheckCircle2 } from "lucide-react";
+import { WaitlistModal } from "@/components/waitlist-modal";
 
 export default function ComingSoonPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
@@ -84,13 +90,15 @@ export default function ComingSoonPage() {
             <p className="text-sm text-muted-foreground mb-4">
               Register for early access and launch notifications.
             </p>
-            <a
-              href="mailto:contact@transactease.com?subject=Early Access Request"
+            <button
+              onClick={() => setIsModalOpen(true)}
               className="inline-block px-6 py-3 gradient-primary rounded-lg text-white font-semibold hover:shadow-lg transition-all"
             >
               Request Early Access
-            </a>
+            </button>
           </div>
+
+          <WaitlistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
           {/* Back to Home */}
           <Link
