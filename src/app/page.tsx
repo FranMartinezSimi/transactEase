@@ -57,8 +57,8 @@ export default function LandingPage() {
               {/* Subtitle */}
               <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-fade-in-up">
                 Temporary links with auto-destruction, automatic encryption, and{" "}
-                <span className="text-primary font-semibold">complete forensic audit</span>.
-                Perfect for GDPR, HIPAA compliance, or legal documents.
+                <span className="text-primary font-semibold">complete audit trail</span>.
+                Perfect for sensitive documents that need access tracking.
               </p>
 
               {/* CTAs */}
@@ -89,7 +89,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-success" />
-                  <span>GDPR & HIPAA ready</span>
+                  <span>Complete access tracking</span>
                 </div>
               </div>
             </div>
@@ -150,7 +150,7 @@ export default function LandingPage() {
                 TransactEase Solves the Root Problem
               </h2>
               <p className="text-xl text-muted-foreground">
-                Self-destructing documents + <span className="text-primary font-semibold">complete forensic audit</span>
+                Self-destructing documents + <span className="text-primary font-semibold">complete audit trail</span>
               </p>
             </div>
 
@@ -172,8 +172,8 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-4">2. Complete Tracking</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Every view, download, and access is logged with IP, location,
-                  timestamp, and device. Automatic forensic audit.
+                  Every view and download is logged with IP address, exact timestamp,
+                  and user email. Complete audit trail you can export.
                 </p>
               </div>
 
@@ -183,8 +183,8 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-4">3. Self-Destructs</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  The document disappears permanently after being viewed, upon expiration,
-                  or if suspicious activity is detected. Complete forensic log of EVERYTHING.
+                  The document disappears permanently after reaching view/download limits
+                  or upon expiration. Complete audit log of every access.
                 </p>
               </div>
             </div>
@@ -196,10 +196,10 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                Forensic Audit: Our Differentiator
+                Complete Audit Trail: Our Differentiator
               </h2>
               <p className="text-xl text-muted-foreground">
-                The competition DOESN'T have this. Perfect for compliance and legal evidence.
+                Track every access with complete transparency. Perfect for accountability and record-keeping.
               </p>
             </div>
 
@@ -212,35 +212,35 @@ export default function LandingPage() {
                 <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <FileCheck className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Complete Forensic Audit</h3>
+                <h3 className="text-xl font-bold text-foreground mb-4">Complete Audit Trail</h3>
                 <p className="text-muted-foreground">
-                  Visual timeline of every access: who (email), when (exact timestamp),
-                  from where (IP + city), what they did (viewed/downloaded), for how long.
-                  CSV export for compliance.
+                  Timeline of every access: who (email), when (exact timestamp),
+                  from where (IP address), what they did (viewed/downloaded).
+                  CSV export ready for your records.
                 </p>
               </div>
 
-              {/* Feature: Anomaly Detection */}
-              <div className="bg-card p-8 rounded-xl border border-warning/50 hover:shadow-lg transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-warning/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Activity className="h-8 w-8 text-warning" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Anomaly Detection</h3>
-                <p className="text-muted-foreground">
-                  Automatic alerts if it detects: multiple IPs, very fast access (possible bot),
-                  VPN/proxy, or off-hours access. Visual flag for suspicious activity.
-                </p>
-              </div>
-
-              {/* Feature: Geolocation */}
+              {/* Feature: Password Protection */}
               <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
                 <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <MapPin className="h-8 w-8 text-primary" />
+                  <Lock className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Location Tracking</h3>
+                <h3 className="text-xl font-bold text-foreground mb-4">Password Protection</h3>
                 <p className="text-muted-foreground">
-                  Every access logs IP and approximate location (country/city).
-                  Detects if the document was forwarded to someone in another country.
+                  Add optional password protection to your documents.
+                  Only recipients with the password can access the file, adding an extra layer of security.
+                </p>
+              </div>
+
+              {/* Feature: IP Logging */}
+              <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
+                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Activity className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-4">IP Address Logging</h3>
+                <p className="text-muted-foreground">
+                  Every access logs the IP address and timestamp.
+                  Track patterns and identify unexpected access from your audit trail.
                 </p>
               </div>
 
@@ -251,8 +251,8 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-4">Smart Auto-Destruction</h3>
                 <p className="text-muted-foreground">
-                  Expires by time (1h-30 days), view limit, download limit,
-                  or hacking attempt. Configurable up to 300MB per file.
+                  Expires by time (1h-30 days), view limit, or download limit.
+                  You control exactly when and how the link expires. Supports files up to 300MB.
                 </p>
               </div>
 
@@ -273,10 +273,10 @@ export default function LandingPage() {
                 <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <FileBarChart className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Compliance Reports</h3>
+                <h3 className="text-xl font-bold text-foreground mb-4">Audit Reports</h3>
                 <p className="text-muted-foreground">
-                  Complete CSV export with all events. Ready for audits
-                  GDPR, HIPAA, SOX, or any regulatory requirement.
+                  Export complete access logs to CSV format.
+                  Perfect for internal audits, security reviews, and record-keeping.
                 </p>
               </div>
 
@@ -316,7 +316,7 @@ export default function LandingPage() {
               </h2>
               <p className="text-xl text-muted-foreground mb-8">
                 Join professionals who protect confidential documents with auto-destruction
-                and <span className="text-primary font-semibold">forensic audit that saves audits</span>.
+                and <span className="text-primary font-semibold">complete audit trail for accountability</span>.
               </p>
 
 
@@ -335,13 +335,13 @@ export default function LandingPage() {
                   <CheckCircle2 className="h-4 w-4 text-success" /> Smart auto-destruction
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> Forensic audit trail
+                  <CheckCircle2 className="h-4 w-4 text-success" /> Complete audit trail
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> Anomaly detection
+                  <CheckCircle2 className="h-4 w-4 text-success" /> Password protection
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> 2-minute setup
+                  <CheckCircle2 className="h-4 w-4 text-success" /> CSV export
                 </span>
               </div>
             </div>
