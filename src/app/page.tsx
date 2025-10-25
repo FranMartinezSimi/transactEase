@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { WitheListModal } from "./components/ui/withelist.modal";
+import { WaitlistModal } from "@/components/waitlist-modal";
 import {
   Shield,
   Lock,
@@ -64,10 +64,16 @@ export default function LandingPage() {
               {/* CTAs */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
                 <Link
-                  href="/auth"
+                  href="/auth/register"
                   className="text-lg px-8 py-4 gradient-primary border-0 shadow-lg hover:shadow-xl transition-all rounded-lg text-white font-semibold"
                 >
-                  Coming Soon
+                  Get Started Free
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="text-lg px-8 py-4 bg-card border border-border hover:bg-secondary transition-all rounded-lg text-foreground font-semibold"
+                >
+                  Sign In
                 </Link>
               </div>
 
@@ -322,7 +328,7 @@ export default function LandingPage() {
                   Join the Waitlist
                 </button>
               </div>
-              <WitheListModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+              <WaitlistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">

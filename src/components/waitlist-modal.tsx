@@ -3,12 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Mail, User, Rocket } from "lucide-react";
 
-interface WitheListModalProps {
+interface WaitlistModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export function WitheListModal({ isOpen, onClose }: WitheListModalProps) {
+export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     const [user, setUser] = useState({
         email: "",
         name: ""

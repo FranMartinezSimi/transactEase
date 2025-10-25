@@ -6,6 +6,7 @@ import { NextResponse, type NextRequest } from 'next/server'
  * Rutas públicas:
  * - / (landing page)
  * - /coming-soon
+ * - /auth/* (login, register, etc.)
  * - /_next/* (assets de Next.js)
  * - /favicon.ico y otros archivos estáticos
  *
@@ -35,10 +36,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // TODO: Cuando implementes auth, descomenta esto:
-  // if (pathname.startsWith('/auth')) {
-  //   return NextResponse.next()
-  // }
+  // Permitir rutas de autenticación
+  if (pathname.startsWith('/auth')) {
+    return NextResponse.next()
+  }
 
   // TODO: Para rutas protegidas con auth, agrega:
   // const token = request.cookies.get('auth-token')
