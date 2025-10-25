@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* TransactEase - Professional Black Theme for Security & Compliance */
+/* Sealdrop - Professional Black Theme for Security & Compliance */
 :root {
   /* Light mode (not used - we use dark theme always) */
   --background: 0 0% 100%;

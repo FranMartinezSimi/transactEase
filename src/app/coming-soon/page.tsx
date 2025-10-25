@@ -113,7 +113,7 @@ export default function ComingSoonPage() {
 
         {/* Footer Note */}
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Meanwhile, learn more about TransactEase on our{" "}
+          Meanwhile, learn more about Sealdrop on our{" "}
           <Link href="/" className="text-primary hover:underline">
             main page
           </Link>

@@ -37,7 +37,7 @@ export default function LoginPage() {
   return (
     <AuthCard
       title="Welcome back"
-      description="Sign in to your TransactEase account"
+      description="Sign in to your Sealdrop account"
       footer={
         <div className="w-full text-center">
           <p className="text-sm text-muted-foreground">

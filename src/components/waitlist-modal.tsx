@@ -102,7 +102,7 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
 
                         {/* Description */}
                         <p className="mb-8 text-muted-foreground text-center">
-                            Be among the first to access <span className="text-primary font-semibold">TransactEase</span>.
+                            Be among the first to access <span className="text-primary font-semibold">Sealdrop</span>.
                             We'll notify you when we're ready to launch.
                         </p>
 
