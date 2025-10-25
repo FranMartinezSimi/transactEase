@@ -356,7 +356,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6 text-primary" />
+              <Image src={Logo} alt="Sealdrop Logo" className="h-15 w-15" />
               <span className="text-lg font-bold text-foreground">Sealdrop</span>
             </div>
 

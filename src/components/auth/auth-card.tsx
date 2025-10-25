@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Shield } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
+import Logo from "../../../public/Sealdrop.svg";
 
 interface AuthCardProps {
   title: string
@@ -15,8 +16,8 @@ export function AuthCard({ title, description, children, footer }: AuthCardProps
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link href="/" className="flex items-center justify-center gap-2 mb-8">
-          <Shield className="h-10 w-10 text-primary" />
-          <span className="text-2xl font-bold text-foreground">TransactEase</span>
+          <Image src={Logo} alt="Sealdrop Logo" className="h-45 w-45" />
+          <span className="text-2xl font-bold text-foreground">Sealdrop</span>
         </Link>
 
         {/* Card */}

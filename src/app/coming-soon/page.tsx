@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { Shield, Rocket, Bell, CheckCircle2 } from "lucide-react";
 import { WaitlistModal } from "@/components/waitlist-modal";
+import Image from "next/image";
+import Logo from "../../assets/sealdrop-logo.png";
 
 export default function ComingSoonPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,8 +15,8 @@ export default function ComingSoonPage() {
       <div className="max-w-2xl w-full">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <Shield className="h-12 w-12 text-primary" />
-          <span className="text-3xl font-bold text-foreground">TransactEase</span>
+          <Image src={Logo} alt="Sealdrop Logo" className="h-30 w-30" />
+          <span className="text-3xl font-bold text-foreground">Seladrop</span>
         </div>
 
         {/* Main Content */}
