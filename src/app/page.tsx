@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { WaitlistModal } from "@/components/waitlist-modal";
 import {
@@ -19,6 +18,9 @@ import {
   Activity,
   FileBarChart,
 } from "lucide-react";
+import Logo from "../../public/Sealdrop.svg";
+import Image from 'next/image'
+
 
 export default function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,8 +31,8 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground">TransactEase</span>
+              <Image src={Logo} alt="Sealdrop Logo" className="h-30 w-30" />
+              <span className="text-2xl font-bold text-foreground">Sealdrop</span>
             </div>
           </div>
         </div>
@@ -147,7 +149,7 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                TransactEase Solves the Root Problem
+                Sealdrop Solves the Root Problem
               </h2>
               <p className="text-xl text-muted-foreground">
                 Self-destructing documents + <span className="text-primary font-semibold">complete audit trail</span>
@@ -355,17 +357,17 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold text-foreground">TransactEase</span>
+              <span className="text-lg font-bold text-foreground">Sealdrop</span>
             </div>
 
             <div className="text-sm text-muted-foreground">
-              © 2025 TransactEase. All rights reserved.
+              © 2025 Sealdrop. All rights reserved.
             </div>
 
             <div className="flex gap-6 text-sm text-muted-foreground">
               <a href="#" className="hover:text-primary transition-colors">Privacy</a>
               <a href="#" className="hover:text-primary transition-colors">Terms</a>
-              <a href="mailto:contact@transactease.com" className="hover:text-primary transition-colors">Contact</a>
+              <a href="mailto:contact@sealdrop.com" className="hover:text-primary transition-colors">Contact</a>
             </div>
           </div>
         </div>
