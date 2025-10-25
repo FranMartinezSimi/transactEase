@@ -47,9 +47,7 @@ export const sendFileSchema = z.object({
     .email("Invalid email address")
     .optional(),
 
-  expiresIn: z.enum(["1h", "24h", "7d", "30d", "never"], {
-    errorMap: () => ({ message: "Invalid expiration time" })
-  }).default("24h"),
+  expiresIn: z.enum(["1h", "24h", "7d", "30d", "never"]).default("24h"),
 
   maxViews: z
     .number()
