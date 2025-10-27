@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Sealdrop - Secure Documents with Complete Audit Trail",
+  icons: {
+    icon: "/Sealdrop.svg",
+  },
   description: "Share sensitive documents with self-destruction, automatic encryption, and complete audit trail. Perfect for sensitive documents that need access tracking.",
   keywords: ["secure documents", "audit trail", "self-destruction", "access tracking", "temporary file", "document tracking", "password protection", "encrypted sharing"],
 };

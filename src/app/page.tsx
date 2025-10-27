@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { WaitlistModal } from "@/components/waitlist-modal";
+import { FAQSection } from "@/components/faq-section";
 import {
   Shield,
   Lock,
@@ -339,6 +340,9 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* FAQ Section */}
+        <FAQSection />
       </main>
 
       {/* Footer */}
