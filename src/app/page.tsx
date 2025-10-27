@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Logo from "../../public/Sealdrop.svg";
 import Image from 'next/image'
+import { redirect } from "next/navigation";
 
 
 export default function LandingPage() {
@@ -27,7 +28,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 glass sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Image src={Logo} alt="Sealdrop Logo" className="h-30 w-30" />
@@ -77,6 +78,12 @@ export default function LandingPage() {
                   <span>Complete access tracking</span>
                 </div>
               </div>
+              <button
+                onClick={() => redirect('/coming-soon')}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-md bg-primary text-primary-foreground font-semibold border border-primary/20 transition-all duration-300 hover:bg-primary/90 hover:border-primary/30 animate-fade-in-up mt-8"
+              >
+                Coming Soon
+              </button>
             </div>
           </div>
         </section>
