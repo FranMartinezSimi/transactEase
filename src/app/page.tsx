@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   CheckCircle2,
   XCircle,
-  MapPin,
   Activity,
   FileBarChart,
 } from "lucide-react";
@@ -62,22 +61,6 @@ export default function LandingPage() {
                 <span className="text-primary font-semibold">complete audit trail</span>.
                 Perfect for sensitive documents that need access tracking.
               </p>
-
-              {/* CTAs */}
-              {/* <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in-up">
-                <Link
-                  href="/auth/register"
-                  className="text-lg px-8 py-4 gradient-primary border-0 shadow-lg hover:shadow-xl transition-all rounded-lg text-white font-semibold"
-                >
-                  Get Started Free
-                </Link>
-                <Link
-                  href="/auth/login"
-                  className="text-lg px-8 py-4 bg-card border border-border hover:bg-secondary transition-all rounded-lg text-foreground font-semibold"
-                >
-                  Sign In
-                </Link>
-              </div> */}
 
               {/* Trust Indicators */}
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">

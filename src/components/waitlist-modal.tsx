@@ -1,18 +1,23 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react";
-import { X, Mail, User, Rocket } from "lucide-react";
+import { X, Mail, User, Rocket, Check } from "lucide-react";
 
-interface WaitlistModalProps {
+interface WaitsModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
-    const [user, setUser] = useState({
+export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
+    const [user, setUser] = useState<{
+        email: string;
+        name: string;
+        comments: string;
+    }>({
         email: "",
-        name: ""
-    })
+        name: "",
+        comments: ""
+    });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
@@ -21,7 +26,7 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     useEffect(() => {
         if (isOpen) {
             dialogRef.current?.showModal();
-            setSubmitted(false); // Reset submitted state when opening
+            setSubmitted(false);
         } else {
             dialogRef.current?.close();
         }
@@ -40,6 +45,7 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 body: JSON.stringify({
                     email: user.email,
                     name: user.name,
+                    comments: user.comments
                 }),
             });
 
@@ -55,9 +61,8 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             setSubmitted(true);
             setIsSubmitting(false);
 
-            // Limpiar y cerrar después de 2 segundos
             setTimeout(() => {
-                setUser({ email: "", name: "" });
+                setUser({ email: "", name: "", comments: "" });
                 setSubmitted(false);
                 onClose();
             }, 2000);
@@ -74,7 +79,6 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             className="backdrop:bg-black/80 backdrop:backdrop-blur-sm rounded-xl shadow-2xl max-w-md w-full p-0 border-2 border-primary/20 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 m-0"
             onClose={onClose}
             onClick={e => {
-                // Cierra si se hace click en el backdrop
                 if (e.target === dialogRef.current) onClose();
             }}
         >
@@ -135,7 +139,17 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                                     disabled={isSubmitting}
                                 />
                             </div>
-
+                            {/* comments */}
+                            <div className="relative">
+                                <Check className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <textarea
+                                    placeholder="Please let us know any comments or questions you have."
+                                    className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
+                                    value={user.comments}
+                                    onChange={e => setUser({ ...user, comments: e.target.value })}
+                                    disabled={isSubmitting}
+                                />
+                            </div>
                             {/* Submit Button */}
                             <button
                                 type="submit"
@@ -152,7 +166,6 @@ export function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                         </p>
                     </>
                 ) : (
-                    // Success State
                     <div className="text-center py-8">
                         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-success/20 flex items-center justify-center">
                             <svg className="h-10 w-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
