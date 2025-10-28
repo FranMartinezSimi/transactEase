@@ -86,15 +86,13 @@ export function FAQSection() {
                   {faq.question}
                 </span>
                 <ChevronDown
-                  className={`w-5 h-5 text-muted-foreground shrink-0 transition-transform duration-200 ${
-                    openIndex === index ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 text-muted-foreground shrink-0 transition-transform duration-200 ${openIndex === index ? "rotate-180" : ""
+                    }`}
                 />
               </button>
               <div
-                className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                  openIndex === index ? "max-h-96" : "max-h-0"
-                }`}
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${openIndex === index ? "max-h-96" : "max-h-0"
+                  }`}
               >
                 <div className="px-6 pb-4 pt-2 text-muted-foreground">
                   {faq.answer}
@@ -102,19 +100,6 @@ export function FAQSection() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* CTA Footer */}
-        <div className="text-center mt-12 pt-8 border-t border-border">
-          <p className="text-muted-foreground mb-4">
-            Still have questions?
-          </p>
-          <a
-            href="mailto:support@sealdrop.com"
-            className="text-primary hover:underline font-medium"
-          >
-            Contact our support team
-          </a>
         </div>
       </div>
     </section>

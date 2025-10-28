@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react";
-import { X, Mail, User, Rocket, Check } from "lucide-react";
+import { X, Mail, Rocket, MessageSquare } from "lucide-react";
+import { trackModalOpen, trackWaitlistSubmit } from "@/lib/analytics";
 
 interface WaitsModalProps {
     isOpen: boolean;
@@ -9,15 +10,8 @@ interface WaitsModalProps {
 }
 
 export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
-    const [user, setUser] = useState<{
-        email: string;
-        name: string;
-        comments: string;
-    }>({
-        email: "",
-        name: "",
-        comments: ""
-    });
+    const [email, setEmail] = useState("");
+    const [comments, setComments] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
@@ -27,6 +21,7 @@ export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
         if (isOpen) {
             dialogRef.current?.showModal();
             setSubmitted(false);
+            trackModalOpen();
         } else {
             dialogRef.current?.close();
         }
@@ -43,9 +38,8 @@ export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    email: user.email,
-                    name: user.name,
-                    comments: user.comments
+                    email,
+                    comments: comments || null
                 }),
             });
 
@@ -60,9 +54,11 @@ export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
 
             setSubmitted(true);
             setIsSubmitting(false);
+            trackWaitlistSubmit(!!comments);
 
             setTimeout(() => {
-                setUser({ email: "", name: "", comments: "" });
+                setEmail("");
+                setComments("");
                 setSubmitted(false);
                 onClose();
             }, 2000);
@@ -105,9 +101,8 @@ export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
                         </h2>
 
                         {/* Description */}
-                        <p className="mb-8 text-muted-foreground text-center">
-                            Be among the first to access <span className="text-primary font-semibold">Sealdrop</span>.
-                            We'll notify you when we're ready to launch.
+                        <p className="mb-6 text-muted-foreground text-center">
+                            Join the waitlist for exclusive early access
                         </p>
 
                         {/* Form */}
@@ -118,51 +113,41 @@ export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
                                 <input
                                     type="email"
                                     placeholder="you@email.com"
-                                    className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
-                                    value={user.email}
-                                    onChange={e => setUser({ ...user, email: e.target.value })}
+                                    className="w-full pl-12 pr-4 py-4 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all text-lg"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
                                     required
                                     disabled={isSubmitting}
+                                    autoFocus
                                 />
                             </div>
 
-                            {/* Name Input */}
+                            {/* Comments Input (Optional) */}
                             <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <input
-                                    type="text"
-                                    placeholder="Your name"
-                                    className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
-                                    value={user.name}
-                                    onChange={e => setUser({ ...user, name: e.target.value })}
-                                    required
-                                    disabled={isSubmitting}
-                                />
-                            </div>
-                            {/* comments */}
-                            <div className="relative">
-                                <Check className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <MessageSquare className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
                                 <textarea
-                                    placeholder="Please let us know any comments or questions you have."
-                                    className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all"
-                                    value={user.comments}
-                                    onChange={e => setUser({ ...user, comments: e.target.value })}
+                                    placeholder="What caught your attention? Any questions? (optional)"
+                                    className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all resize-none"
+                                    value={comments}
+                                    onChange={e => setComments(e.target.value)}
                                     disabled={isSubmitting}
+                                    rows={3}
                                 />
                             </div>
+
                             {/* Submit Button */}
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full gradient-primary text-white py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full gradient-primary text-white py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isSubmitting ? "Sending..." : "I want to join!"}
+                                {isSubmitting ? "Joining..." : "Secure My Spot"}
                             </button>
                         </form>
 
                         {/* Footer Note */}
                         <p className="text-xs text-muted-foreground text-center mt-6">
-                            No spam. We'll only contact you when we launch. You can unsubscribe at any time.
+                            No spam, ever. Unsubscribe anytime.
                         </p>
                     </>
                 ) : (

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { WaitlistModal } from "@/components/waitlist-modal";
 import { FAQSection } from "@/components/faq-section";
+import { ProductShowcase } from "@/components/product-showcase";
+import { trackCTAClick } from "@/lib/analytics";
 import {
   Shield,
   Lock,
@@ -20,7 +22,6 @@ import {
 } from "lucide-react";
 import Logo from "../../public/Sealdrop.svg";
 import Image from 'next/image'
-import { redirect } from "next/navigation";
 
 
 export default function LandingPage() {
@@ -46,45 +47,49 @@ export default function LandingPage() {
           <div className="container mx-auto px-4 relative">
             <div className="max-w-4xl mx-auto text-center">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary border border-primary/20 mb-6 animate-fade-in-up">
-                <Flame className="h-4 w-4 text-accent animate-pulse-glow" />
-                <span className="text-sm font-medium">Self-destructing documents</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive border border-destructive/20 mb-6 animate-fade-in-up">
+                <Flame className="h-4 w-4 text-destructive animate-pulse-glow" />
+                <span className="text-sm font-medium">Auto-destructs after failed login attempts</span>
               </div>
 
               {/* Title */}
               <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight animate-fade-in-up">
-                Share Sensitive Documents{" "}
-                <span className="gradient-text">With Complete Audit Trail</span>
+                Secure file sending{" "}
+                <span className="gradient-text">With full audit-trail.</span>
               </h1>
 
               {/* Subtitle */}
               <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto animate-fade-in-up">
-                Temporary links with auto-destruction, automatic encryption, and{" "}
-                <span className="text-primary font-semibold">complete audit trail</span>.
-                Perfect for sensitive documents that need access tracking.
+                Track who accessed your files, when, where, and <span className="text-primary font-semibold">how many times they tried</span>.<br />
+                Recipients get one-time credentials. Failed attempts? Everything self-destructs.
               </p>
 
               {/* Trust Indicators */}
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-success" />
-                  <span>No credit card required</span>
+                  <span>Auto-destructs after failed attempts</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-success" />
-                  <span>Bank-level encryption</span>
+                  <span>One-time temporary credentials</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-success" />
-                  <span>Complete access tracking</span>
+                  <span>Mandatory IP logging (even with VPN)</span>
                 </div>
               </div>
-              <button
-                onClick={() => redirect('/coming-soon')}
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-md bg-primary text-primary-foreground font-semibold border border-primary/20 transition-all duration-300 hover:bg-primary/90 hover:border-primary/30 animate-fade-in-up mt-8"
-              >
-                Coming Soon
-              </button>
+              <div className="mt-8 animate-fade-in-up">
+                <button
+                  onClick={() => {
+                    trackCTAClick('hero');
+                    setIsModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-10 py-5 rounded-lg bg-primary text-primary-foreground font-bold text-lg border border-primary/20 transition-all duration-300 hover:bg-primary/90 hover:border-primary/30 shadow-2xl hover:shadow-xl hover:scale-105"
+                >
+                  Join the Waitlist
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -94,43 +99,48 @@ export default function LandingPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                The Problem with Traditional Email & File Sharing
+                The Problem with Email & Traditional File Sharing
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-destructive/50 transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-destructive/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <XCircle className="h-8 w-8 text-destructive" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-5xl mx-auto">
+              <div className="bg-card p-10 rounded-2xl border-2 border-border hover:border-destructive/50 transition-all group">
+                <div className="w-16 h-16 rounded-xl bg-destructive/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <XCircle className="h-9 w-9 text-destructive" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4">No Control</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Emails stay in inboxes forever. Once sent, you lose all control.
-                  Recipients can copy, forward, or leave them exposed without protection.
+                <h3 className="text-2xl font-bold text-foreground mb-4">No Control or Visibility</h3>
+                <p className="text-muted-foreground leading-relaxed text-lg">
+                  Once you hit send, you lose all control. Files live in inboxes forever.
+                  You can't track who viewed it, when, or from where. Zero accountability.
                 </p>
               </div>
 
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-destructive/50 transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-destructive/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Eye className="h-8 w-8 text-destructive" />
+              <div className="bg-card p-10 rounded-2xl border-2 border-border hover:border-destructive/50 transition-all group">
+                <div className="w-16 h-16 rounded-xl bg-destructive/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <AlertTriangle className="h-9 w-9 text-destructive" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4">No Traceability</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Did the client view the contract? How many times? From where?
-                  Without an audit trail, there's no way to prove compliance during audits.
+                <h3 className="text-2xl font-bold text-foreground mb-4">Compliance Nightmare</h3>
+                <p className="text-muted-foreground leading-relaxed text-lg">
+                  Without audit trails, you can't prove compliance with GDPR, HIPAA, or SOC2.
+                  One data breach audit and you're exposed with no evidence of due diligence.
                 </p>
               </div>
+            </div>
 
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-destructive/50 transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-destructive/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <AlertTriangle className="h-8 w-8 text-destructive" />
-                </div>
-                <h3 className="text-2xl font-bold text-foreground mb-4">Legal Risk</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Without evidence of who accessed and when, you can't comply with regulations
-                  like GDPR, HIPAA, or corporate audits. Your company is at risk.
-                </p>
-              </div>
+            {/* Early CTA */}
+            <div className="max-w-2xl mx-auto mt-16 text-center">
+              <p className="text-xl text-muted-foreground mb-6">
+                Sound familiar? There's a better way.
+              </p>
+              <button
+                onClick={() => {
+                  trackCTAClick('problem_section');
+                  setIsModalOpen(true);
+                }}
+                className="px-8 py-4 rounded-lg bg-primary text-primary-foreground font-bold text-lg shadow-lg hover:bg-primary/90 transition-all hover:scale-105"
+              >
+                Get Early Access
+              </button>
             </div>
           </div>
         </section>
@@ -184,157 +194,218 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Features Section - AUDIT HIGHLIGHTED */}
-        <section id="features" className="py-20 bg-muted/30">
+        {/* Product Showcase with Screenshots */}
+        <ProductShowcase />
+
+        {/* Features Section - Your Real Differentiators */}
+        <section id="features" className="py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                Complete Audit Trail: Our Differentiator
+                Security Features That Don't Exist Anywhere Else
               </h2>
               <p className="text-xl text-muted-foreground">
-                Track every access with complete transparency. Perfect for accountability and record-keeping.
+                Zero-trust access control meets forensic-grade audit trails
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {/* Feature: Complete Audit */}
-              <div className="bg-card p-8 rounded-xl border border-primary/50 hover:shadow-lg transition-all group relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              {/* Feature 1: Zero-Trust Temporary Access */}
+              <div className="bg-card p-10 rounded-2xl border-2 border-primary/50 hover:shadow-2xl transition-all group relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg">
-                  ⭐ EXCLUSIVE
+                  ⭐ UNIQUE TO SEALDROP
                 </div>
-                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <FileCheck className="h-8 w-8 text-primary" />
+                <div className="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <ShieldAlert className="h-9 w-9 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Complete Audit Trail</h3>
-                <p className="text-muted-foreground">
-                  Timeline of every access: who (email), when (exact timestamp),
-                  from where (IP address), what they did (viewed/downloaded).
-                  CSV export ready for your records.
+                <h3 className="text-2xl font-bold text-foreground mb-4">Zero-Trust Temporary Access</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed mb-4">
+                  Recipients get <strong>single-use credentials</strong> with 4-digit tokens. No password recovery. No second chances.
                 </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Auto-destructs after 2-3 failed login attempts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Temporary user + token destroyed on failure</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Failed attempts logged in audit trail</span>
+                  </li>
+                </ul>
               </div>
 
-              {/* Feature: Password Protection */}
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Lock className="h-8 w-8 text-primary" />
+              {/* Feature 2: Forensic Audit Trail */}
+              <div className="bg-card p-10 rounded-2xl border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all group">
+                <div className="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <FileCheck className="h-9 w-9 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Password Protection</h3>
-                <p className="text-muted-foreground">
-                  Add optional password protection to your documents.
-                  Only recipients with the password can access the file, adding an extra layer of security.
+                <h3 className="text-2xl font-bold text-foreground mb-4">Forensic-Grade Audit Trail</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed mb-4">
+                  Track everything. Export everything. Prove everything.
                 </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Who (email), when (timestamp), where (IP)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Successful + failed access attempts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>CSV export for GDPR/HIPAA/SOC2 compliance</span>
+                  </li>
+                </ul>
               </div>
 
-              {/* Feature: IP Logging */}
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Activity className="h-8 w-8 text-primary" />
+              {/* Feature 3: Mandatory IP Logging */}
+              <div className="bg-card p-10 rounded-2xl border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all group">
+                <div className="w-16 h-16 rounded-xl gradient-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Activity className="h-9 w-9 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">IP Address Logging</h3>
-                <p className="text-muted-foreground">
-                  Every access logs the IP address and timestamp.
-                  Track patterns and identify unexpected access from your audit trail.
+                <h3 className="text-2xl font-bold text-foreground mb-4">Mandatory IP Logging</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed mb-4">
+                  <strong>No bypass.</strong> Senders must grant geolocation permission or cannot send.
                 </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Works even with VPN (logs visible IP)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Compliance-first design for regulated industries</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Track access patterns and anomalies</span>
+                  </li>
+                </ul>
               </div>
 
-              {/* Feature: Auto-Destruction */}
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-accent/50 hover:shadow-lg transition-all group">
-                <div className="w-14 h-14 rounded-lg gradient-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Flame className="h-8 w-8 text-white" />
+              {/* Feature 4: Smart Self-Destruction */}
+              <div className="bg-card p-10 rounded-2xl border-2 border-border hover:border-accent/50 hover:shadow-2xl transition-all group">
+                <div className="w-16 h-16 rounded-xl gradient-accent flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Flame className="h-9 w-9 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Smart Auto-Destruction</h3>
-                <p className="text-muted-foreground">
-                  Expires by time (1h-30 days), view limit, or download limit.
-                  You control exactly when and how the link expires. Supports files up to 300MB.
+                <h3 className="text-2xl font-bold text-foreground mb-4">Multi-Trigger Self-Destruction</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed mb-4">
+                  Documents destroy themselves when ANY condition is met.
                 </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+                    <span>Time-based (1 hour to 30 days)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+                    <span>View/download limits reached</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-accent shrink-0 mt-0.5" />
+                    <span><strong>Failed authentication attempts (unique)</strong></span>
+                  </li>
+                </ul>
               </div>
 
-              {/* Feature: User Management */}
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <ShieldAlert className="h-8 w-8 text-primary" />
+              {/* Feature 5: Verified Sender Identity */}
+              <div className="bg-card p-10 rounded-2xl border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all group">
+                <div className="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Shield className="h-9 w-9 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Enterprise Management</h3>
-                <p className="text-muted-foreground">
-                  Admin creates users, views complete audit, configures limits.
-                  Perfect for teams that need total transparency and compliance.
+                <h3 className="text-2xl font-bold text-foreground mb-4">Verified Sender Identity</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed mb-4">
+                  Google OAuth for senders. Anonymous zero-knowledge tokens for recipients.
                 </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Senders authenticated via Google OAuth</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Bank-level AES-256 encryption</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Files never pass through email servers</span>
+                  </li>
+                </ul>
               </div>
 
-              {/* Feature: Reports */}
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group">
-                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <FileBarChart className="h-8 w-8 text-primary" />
+              {/* Feature 6: Enterprise Management */}
+              <div className="bg-card p-10 rounded-2xl border-2 border-border hover:border-primary/50 hover:shadow-2xl transition-all group">
+                <div className="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Clock className="h-9 w-9 text-primary" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Audit Reports</h3>
-                <p className="text-muted-foreground">
-                  Export complete access logs to CSV format.
-                  Perfect for internal audits, security reviews, and record-keeping.
+                <h3 className="text-2xl font-bold text-foreground mb-4">Simple UX, Enterprise Power</h3>
+                <p className="text-muted-foreground text-lg leading-relaxed mb-4">
+                  Share files in seconds. Admin controls for teams.
                 </p>
-              </div>
-
-              {/* Feature: Encryption */}
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group col-span-1 md:col-span-2 lg:col-span-1">
-                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Shield className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Automatic Encryption</h3>
-                <p className="text-muted-foreground">
-                  All files are encrypted before storage. The file NEVER goes through email.
-                  Only a temporary link to a secure viewer.
-                </p>
-              </div>
-
-              {/* Feature: Flexible Configuration */}
-              <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all group col-span-1 md:col-span-2 lg:col-span-2">
-                <div className="w-14 h-14 rounded-lg bg-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Clock className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Flexible Configuration</h3>
-                <p className="text-muted-foreground">
-                  Admin configures file limits (up to 300MB), expiration ranges,
-                  and security policies. No ridiculous limits like other services.
-                </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Up to 300MB per file</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Team management & policy configuration</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span>Full-text search across audit logs</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-20">
+        <section className="py-20 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center glass rounded-2xl p-12 border-2 border-primary/20 shadow-2xl">
+              {/* Urgency badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-accent mb-6">
+                <Clock className="h-4 w-4 animate-pulse" />
+                <span className="text-sm font-bold">Limited early access spots available</span>
+              </div>
+
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-                Stop Risking Sensitive Information
+                Ready to Secure Your Documents?
               </h2>
               <p className="text-xl text-muted-foreground mb-8">
-                Join professionals who protect confidential documents with auto-destruction
-                and <span className="text-primary font-semibold">complete audit trail for accountability</span>.
+                Be among the first to get <span className="text-primary font-semibold">complete audit trail</span> and
+                self-destructing links for your sensitive files.
               </p>
-
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <button
-                  className="px-8 py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-lg shadow-lg hover:bg-primary/90 transition"
-                  onClick={() => setIsModalOpen(true)}
+                  className="px-10 py-4 rounded-lg bg-primary text-primary-foreground font-bold text-xl shadow-lg hover:bg-primary/90 transition-all hover:scale-105"
+                  onClick={() => {
+                    trackCTAClick('final_cta');
+                    setIsModalOpen(true);
+                  }}
                 >
-                  Join the Waitlist
+                  Secure My Spot
                 </button>
               </div>
               <WaitlistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> Smart auto-destruction
+                  <CheckCircle2 className="h-4 w-4 text-success" /> Launch: January 2025
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> Complete audit trail
+                  <CheckCircle2 className="h-4 w-4 text-success" /> No credit card needed
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> Password protection
-                </span>
-                <span className="flex items-center gap-1">
-                  <CheckCircle2 className="h-4 w-4 text-success" /> CSV export
+                  <CheckCircle2 className="h-4 w-4 text-success" /> Early adopter benefits
                 </span>
               </div>
             </div>
