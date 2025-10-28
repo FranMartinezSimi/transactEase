@@ -10,44 +10,34 @@ interface FAQItem {
 
 const faqs: FAQItem[] = [
   {
-    question: "How does end-to-end encryption work?",
+    question: "What happens if someone tries to guess the password?",
     answer:
-      "Your files are encrypted on your device before being uploaded to our servers. Only the recipient with the unique access link can decrypt and view the files. We never have access to your unencrypted data.",
+      "After 2-3 failed login attempts, the file, temporary user account, and all credentials are automatically destroyed. No recovery possible. The sender gets notified immediately, and everything is logged in the audit trail. This prevents brute force attacks.",
   },
   {
-    question: "What happens when files self-destruct?",
+    question: "What's a temporary user with a 4-digit token?",
     answer:
-      "Files are automatically and permanently deleted from our servers after they expire, reach their view limit, or download limit. This ensures sensitive data doesn't persist longer than necessary, helping you maintain compliance and control.",
+      "When you share a file externally, the recipient gets a single-use account with a unique 4-digit token (not a password they can forget). No sign-up, no password recovery, no second chances. Once they access the file or the link expires, the account self-destructs.",
   },
   {
-    question: "Can I control who accesses my files?",
+    question: "Why is IP logging mandatory?",
     answer:
-      "Yes! You can set email whitelists/blacklists, restrict access to specific domains, limit IP addresses, and configure view/download limits. You have complete control over who can access your shared files.",
+      "For forensic-grade compliance. Every file access is logged with IP address, timestamp, device info, and action taken. This creates an immutable audit trail for legal/compliance teams. Even if someone uses a VPN, their access is still logged and traceable.",
   },
   {
-    question: "How does the audit trail work?",
+    question: "How is this different from WeTransfer or SendSafely?",
     answer:
-      "Every action is logged with timestamps, IP addresses, and user details. You can see exactly when files were viewed, downloaded, or accessed, providing complete transparency and compliance documentation.",
-  },
-  {
-    question: "What makes Sealdrop different from Dropbox or Google Drive?",
-    answer:
-      "Unlike permanent storage solutions, Sealdrop is designed for temporary, secure file sharing. Files self-destruct, access is granularly controlled, and every action is audited. It's built for compliance-focused businesses that need to prove they don't retain sensitive data.",
+      "WeTransfer has zero audit trail and no access control. SendSafely costs $300+/month for enterprise features. Sealdrop gives you auto-destruction on failed attempts, forensic audit logs, temporary users with tokens, and mandatory IP tracking at SMB pricing ($29-99/month).",
   },
   {
     question: "Is my data stored permanently on your servers?",
     answer:
-      "No. Sealdrop uses ephemeral storage - files are automatically deleted after expiration or when access limits are reached. We don't retain your data, which helps you stay compliant with data protection regulations.",
+      "No. Files self-destruct after expiration, view/download limits, or failed login attempts. We use ephemeral storage with automatic deletion. Your data doesn't persist, which helps with GDPR, HIPAA, and SOC 2 compliance requirements.",
   },
   {
-    question: "What industries benefit from Sealdrop?",
+    question: "Who is Sealdrop built for?",
     answer:
-      "Financial services, healthcare, legal firms, compliance teams, and any business handling sensitive information. If you need to share files securely without leaving a permanent digital footprint, Sealdrop is for you.",
-  },
-  {
-    question: "Can I customize security policies for my organization?",
-    answer:
-      "Absolutely. You can configure email/IP whitelists and blacklists, set expiration limits, restrict access to internal domains only, and customize security policies to match your organization's compliance requirements.",
+      "Compliance teams, legal firms, financial services, HR departments, healthcare providers, and any business handling sensitive documents that need proof of who accessed what, when, and from where. If you need audit trails and auto-destruction, Sealdrop is for you.",
   },
 ];
 
