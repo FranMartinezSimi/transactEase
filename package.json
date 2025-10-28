@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "vercel-build": "if [ \"$VERCEL_ENV\" = \"production\" ]; then next build; else echo 'Skipping preview build'; exit 0; fi"
+
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
