@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react";
-import { X, Mail, Rocket, MessageSquare } from "lucide-react";
-import { trackModalOpen, trackWaitlistSubmit } from "@/lib/analytics";
+import { useEffect, useRef } from "react";
+import { X, Rocket } from "lucide-react";
+import { trackModalOpen } from "@/lib/analytics";
 
 interface WaitsModalProps {
     isOpen: boolean;
@@ -10,64 +10,16 @@ interface WaitsModalProps {
 }
 
 export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
-    const [email, setEmail] = useState("");
-    const [comments, setComments] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitted, setSubmitted] = useState(false);
-
     const dialogRef = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
         if (isOpen) {
             dialogRef.current?.showModal();
-            setSubmitted(false);
             trackModalOpen();
         } else {
             dialogRef.current?.close();
         }
     }, [isOpen]);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-
-        try {
-            const response = await fetch('/api/waitlist', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email,
-                    comments: comments || null
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                console.error('Failed to join waitlist:', data.error);
-                alert('Failed to join waitlist. Please try again.');
-                setIsSubmitting(false);
-                return;
-            }
-
-            setSubmitted(true);
-            setIsSubmitting(false);
-            trackWaitlistSubmit(!!comments);
-
-            setTimeout(() => {
-                setEmail("");
-                setComments("");
-                setSubmitted(false);
-                onClose();
-            }, 2000);
-        } catch (error) {
-            console.error('Error submitting waitlist:', error);
-            alert('An error occurred. Please try again.');
-            setIsSubmitting(false);
-        }
-    };
 
     return (
         <dialog
@@ -82,89 +34,38 @@ export function WaitlistModal({ isOpen, onClose }: WaitsModalProps) {
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors p-2 rounded-lg hover:bg-primary/10 z-10"
                     aria-label="Close"
                 >
                     <X className="h-5 w-5" />
                 </button>
 
-                {!submitted ? (
-                    <>
-                        {/* Icon */}
-                        <div className="w-16 h-16 mx-auto mb-6 rounded-2xl gradient-primary flex items-center justify-center">
-                            <Rocket className="h-8 w-8 text-white" />
-                        </div>
+                {/* Icon */}
+                <div className="w-16 h-16 mx-auto mb-6 rounded-2xl gradient-primary flex items-center justify-center">
+                    <Rocket className="h-8 w-8 text-white" />
+                </div>
 
-                        {/* Title */}
-                        <h2 className="text-3xl font-bold mb-3 text-foreground text-center">
-                            Join the Waitlist
-                        </h2>
+                {/* Title */}
+                <h2 className="text-3xl font-bold mb-3 text-foreground text-center">
+                    Join the Waitlist
+                </h2>
 
-                        {/* Description */}
-                        <p className="mb-6 text-muted-foreground text-center">
-                            Join the waitlist for exclusive early access
-                        </p>
+                {/* Description */}
+                <p className="mb-6 text-muted-foreground text-center">
+                    Join the waitlist for exclusive early access
+                </p>
 
-                        {/* Form */}
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            {/* Email Input */}
-                            <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                                <input
-                                    type="email"
-                                    placeholder="you@email.com"
-                                    className="w-full pl-12 pr-4 py-4 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all text-lg"
-                                    value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    required
-                                    disabled={isSubmitting}
-                                    autoFocus
-                                />
-                            </div>
-
-                            {/* Comments Input (Optional) */}
-                            <div className="relative">
-                                <MessageSquare className="absolute left-4 top-4 h-5 w-5 text-muted-foreground" />
-                                <textarea
-                                    placeholder="What caught your attention? Any questions? (optional)"
-                                    className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-foreground placeholder:text-muted-foreground transition-all resize-none"
-                                    value={comments}
-                                    onChange={e => setComments(e.target.value)}
-                                    disabled={isSubmitting}
-                                    rows={3}
-                                />
-                            </div>
-
-                            {/* Submit Button */}
-                            <button
-                                type="submit"
-                                disabled={isSubmitting}
-                                className="w-full gradient-primary text-white py-4 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? "Joining..." : "Secure My Spot"}
-                            </button>
-                        </form>
-
-                        {/* Footer Note */}
-                        <p className="text-xs text-muted-foreground text-center mt-6">
-                            No spam, ever. Unsubscribe anytime.
-                        </p>
-                    </>
-                ) : (
-                    <div className="text-center py-8">
-                        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-success/20 flex items-center justify-center">
-                            <svg className="h-10 w-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-foreground mb-3">
-                            Welcome aboard!
-                        </h3>
-                        <p className="text-muted-foreground">
-                            We've added you to the list. We'll notify you soon.
-                        </p>
-                    </div>
-                )}
+                {/* Tally Form Embed */}
+                <iframe
+                    src="https://tally.so/embed/m6brGe?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1"
+                    width="100%"
+                    height="400"
+                    frameBorder="0"
+                    marginHeight={0}
+                    marginWidth={0}
+                    title="Waitlist Form"
+                    className="rounded-lg"
+                ></iframe>
             </div>
         </dialog>
     );
