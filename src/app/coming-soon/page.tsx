@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Shield, Rocket, Bell, CheckCircle2 } from "lucide-react";
+import { Rocket, Bell, CheckCircle2 } from "lucide-react";
 import { WaitlistModal } from "@/components/waitlist-modal";
 import Image from "next/image";
 import Logo from "../../../public/Sealdrop.svg";
@@ -36,7 +36,7 @@ export default function ComingSoonPage() {
             We're building something incredible.
             <br />
             <span className="text-primary font-semibold">
-              Secure documents with complete forensic audit.
+              Secure documents with complete audit trail.
             </span>
           </p>
 
@@ -55,9 +55,9 @@ export default function ComingSoonPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50 border border-border">
               <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Forensic Audit</h3>
+                <h3 className="font-semibold text-foreground mb-1">Complete Audit Trail</h3>
                 <p className="text-sm text-muted-foreground">
-                  Complete timeline of every access with IP and location
+                  Complete timeline of every access with IP address and timestamp
                 </p>
               </div>
             </div>
@@ -65,9 +65,9 @@ export default function ComingSoonPage() {
             <div className="flex items-start gap-3 p-4 rounded-lg bg-card/50 border border-border">
               <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-foreground mb-1">Compliance</h3>
+                <h3 className="font-semibold text-foreground mb-1">Audit Reports</h3>
                 <p className="text-sm text-muted-foreground">
-                  GDPR, HIPAA ready with exports for audits
+                  Export complete access logs to CSV for your records
                 </p>
               </div>
             </div>
