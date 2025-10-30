@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next"
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { ReactQueryProvider } from "@/components/ReactQueryProvider";
 import GoogleAnalytics from "./GoogleAnalytics";
 import "./globals.css";
 
@@ -35,7 +36,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <GoogleAnalytics />
-        {children}
+        <ReactQueryProvider>
+          {children}
+        </ReactQueryProvider>
         <Analytics />
         <Toaster
           position="top-right"

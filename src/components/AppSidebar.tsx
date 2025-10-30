@@ -9,10 +9,12 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import {
   LayoutDashboard,
@@ -23,11 +25,23 @@ import {
   Shield,
   Building2,
   BadgeCheck,
+  Send,
+  FileText,
+  Users,
+  Settings,
+  BarChart3,
+  Clock,
+  Archive,
+  Bell,
+  HelpCircle,
+  CreditCard,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import Logo from "../../public/Sealdrop.svg";
+import Image from "next/image";
 
 export function AppSidebar() {
   const router = useRouter()
@@ -65,6 +79,7 @@ export function AppSidebar() {
 
   const isAdmin = profile?.role === "admin" || profile?.role === "owner"
 
+  // Main navigation items
   const mainNavItems = [
     {
       title: "Dashboard",
@@ -72,16 +87,49 @@ export function AppSidebar() {
       path: "/dashboard",
     },
     {
-      title: "Auditoría",
-      icon: FileCheck,
-      path: "/audit",
-      adminOnly: true,
+      title: "Send Delivery",
+      icon: Send,
+      path: "/delivery",
+    },
+    {
+      title: "My Deliveries",
+      icon: FileText,
+      path: "/deliveries",
     },
   ]
 
-  const visibleMainNavItems = mainNavItems.filter(
-    (item) => !item.adminOnly || isAdmin
-  )
+  // Admin-only navigation items
+  const adminNavItems = [
+    {
+      title: "Audit Log",
+      icon: FileCheck,
+      path: "/audit",
+    },
+    {
+      title: "Team Members",
+      icon: Users,
+      path: "/settings/users",
+    },
+    {
+      title: "Organization",
+      icon: Building2,
+      path: "/settings/organization",
+    },
+  ]
+
+  // Settings navigation items
+  const settingsNavItems = [
+    {
+      title: "Settings",
+      icon: Settings,
+      path: "/settings",
+    },
+    {
+      title: "Help & Support",
+      icon: HelpCircle,
+      path: "/help",
+    },
+  ]
 
   const handleSignOut = async () => {
     try {
@@ -106,8 +154,8 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border p-4 space-y-3">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <Shield className="h-6 w-6 text-primary" />
-          <span className="text-lg font-bold">TransactEase</span>
+          <Image src={Logo} alt="Sealdrop Logo" className="h-16 w-16" />
+          <span className="text-lg font-bold">Sealdrop</span>
         </div>
 
         {/* Organization & Role */}
@@ -133,9 +181,56 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Main Navigation */}
         <SidebarGroup>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {visibleMainNavItems.map((item) => (
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton
+                    isActive={isActive(item.path)}
+                    onClick={() => router.push(item.path)}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Admin Navigation - Only visible to admins */}
+        {isAdmin && (
+          <>
+            <SidebarSeparator />
+            <SidebarGroup>
+              <SidebarGroupLabel>Administration</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {adminNavItems.map((item) => (
+                    <SidebarMenuItem key={item.path}>
+                      <SidebarMenuButton
+                        isActive={isActive(item.path)}
+                        onClick={() => router.push(item.path)}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </>
+        )}
+
+        {/* Settings Navigation */}
+        <SidebarSeparator />
+        <SidebarGroup>
+          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsNavItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     isActive={isActive(item.path)}
@@ -152,28 +247,6 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-4">
-        <div className="space-y-2">
-          {/* Dark Mode Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleTheme}
-            className="w-full justify-start"
-          >
-            {theme === "dark" ? (
-              <>
-                <Sun className="h-4 w-4 mr-2" />
-                Light Mode
-              </>
-            ) : (
-              <>
-                <Moon className="h-4 w-4 mr-2" />
-                Dark Mode
-              </>
-            )}
-          </Button>
-
-          <Separator />
 
           {/* User Info */}
           <div className="px-2 py-1 text-xs text-muted-foreground truncate">
@@ -190,7 +263,7 @@ export function AppSidebar() {
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
           </Button>
-        </div>
+        
       </SidebarFooter>
     </Sidebar>
   )

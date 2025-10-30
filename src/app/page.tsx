@@ -19,9 +19,12 @@ import {
   XCircle,
   Activity,
   FileBarChart,
+  LogIn,
 } from "lucide-react";
 import Logo from "../../public/Sealdrop.svg";
 import Image from 'next/image'
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 
 export default function LandingPage() {
@@ -35,6 +38,13 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <Image src={Logo} alt="Sealdrop Logo" className="h-30 w-30" />
               <span className="text-2xl font-bold text-foreground">Sealdrop</span>
+            </div>
+            <div className="flex items-center  w-1/12 h-14 rounded-lg">
+              <Button variant="default" asChild className="p-4 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-4 w-full rounded-lg h-full">
+                <Link href="/auth/login">
+                  <LogIn className="h-4 w-4 text-primary-foreground hover:text-primary-foreground/80" />
+                  <span className="text-sm font-medium text-primary-foreground hover:text-primary-foreground/80">Login</span>
+                </Link></Button>
             </div>
           </div>
         </div>
