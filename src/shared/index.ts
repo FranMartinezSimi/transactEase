@@ -10,6 +10,7 @@
 
 // Components
 export { AuthenticatedLayout } from "./components/AuthenticatedLayout";
+export { AppSidebar } from "./components/AppSidebar";
 export { ReactQueryProvider } from "./components/ReactQueryProvider";
 export { LocationPermission } from "./components/LocationPermission";
 export * from "./components/ui";

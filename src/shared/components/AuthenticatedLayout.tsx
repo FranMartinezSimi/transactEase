@@ -6,9 +6,9 @@ import {
   SidebarProvider,
   SidebarInset,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/AppSidebar"
-import { Separator } from "@/components/ui/separator"
+} from "@shared/components/ui/sidebar"
+import { AppSidebar } from "./AppSidebar"
+import { Separator } from "@shared/components/ui/separator"
 import { LocationPermission } from "./LocationPermission"
 import { useLocation } from "../hooks/useLocation"
 

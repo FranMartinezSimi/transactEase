@@ -3,9 +3,9 @@
 import * as React from "react";
 import Image from 'next/image';
 import { FileCheck, Upload, Activity, ShieldCheck, X, AlertCircle } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { trackScreenshotClick } from "@/lib/analytics";
+import { Card, CardContent } from "@shared/components/ui/card";
+import { cn } from "@shared/utils/utils";
+import { trackScreenshotClick } from "@shared/lib/analytics";
 
 const screenshots = [
   {

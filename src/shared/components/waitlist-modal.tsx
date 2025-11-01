@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { X, Rocket } from "lucide-react";
-import { trackModalOpen } from "@/lib/analytics";
+import { trackModalOpen } from "@shared/lib/analytics";
 
 interface WaitsModalProps {
     isOpen: boolean;

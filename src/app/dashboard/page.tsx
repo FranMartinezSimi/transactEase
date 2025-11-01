@@ -11,6 +11,7 @@ import { formatDistanceToNow } from "date-fns"
 import { useProfile } from "@features/auth"
 import { useDeliveries } from "@features/delivery/hooks/useDeliveries"
 import { DeliveryActions } from "@features/delivery/components/DeliveryActions"
+import { DeliveryStats } from "@features/delivery/types/delivery.interface"
 import { toast } from "sonner"
 
 export default function DashboardPage() {

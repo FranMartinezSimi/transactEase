@@ -1,9 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
-import { sendDeliveryNotification } from "@/lib/email/send-delivery-notification";
-
+import { createClient } from "@shared/lib/supabase/server";
+import { sendDeliveryNotification } from "@shared/lib/email/send-delivery-notification";
 /**
  * Revoke a delivery (mark as revoked)
  */
@@ -31,7 +30,7 @@ export async function revokeDelivery(deliveryId: string) {
       .from("deliveries")
       .update({
         status: "revoked",
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", deliveryId);
 
@@ -44,9 +43,12 @@ export async function revokeDelivery(deliveryId: string) {
     revalidatePath("/dashboard");
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[revokeDelivery] Unexpected error:", error);
-    return { success: false, error: error?.message || "Server error" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Server error",
+    };
   }
 }
 
@@ -58,7 +60,9 @@ export async function deleteDelivery(deliveryId: string) {
     const supabase = await createClient();
 
     // Verify user has permission (must be sender or admin)
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return { success: false, error: "Unauthorized" };
@@ -86,7 +90,10 @@ export async function deleteDelivery(deliveryId: string) {
     const isAdmin = profile?.role === "admin" || profile?.role === "owner";
 
     if (!isOwner && !isAdmin) {
-      return { success: false, error: "You don't have permission to delete this delivery" };
+      return {
+        success: false,
+        error: "You don't have permission to delete this delivery",
+      };
     }
 
     // Delete delivery files first (FK constraint)
@@ -115,9 +122,12 @@ export async function deleteDelivery(deliveryId: string) {
     revalidatePath("/dashboard");
 
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[deleteDelivery] Unexpected error:", error);
-    return { success: false, error: error?.message || "Server error" };
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Server error",
+    };
   }
 }
 
@@ -131,17 +141,24 @@ export async function resendDeliveryNotification(deliveryId: string) {
     // Get delivery details
     const { data: delivery, error: fetchError } = await supabase
       .from("deliveries")
-      .select(`
+      .select(
+        `
         id,
         title,
         message,
         recipient_email,
         status,
+        expires_at,
+        max_views,
+        max_downloads,
+        files:delivery_files(*),
         sender:profiles!deliveries_sender_id_fkey (
           full_name,
           email
-        )
-      `)
+        ),
+        organization:organizations!deliveries_organization_id_fkey ( name )
+      `
+      )
       .eq("id", deliveryId)
       .single();
 
@@ -150,32 +167,56 @@ export async function resendDeliveryNotification(deliveryId: string) {
     }
 
     if (delivery.status !== "active") {
-      return { success: false, error: "Can only resend notifications for active deliveries" };
+      return {
+        success: false,
+        error: "Can only resend notifications for active deliveries",
+      };
     }
 
     // Get delivery link
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const deliveryLink = `${baseUrl}/delivery/${delivery.id}`;
+
+    // Validate sender exists
+    if (!delivery.sender || delivery.sender.length === 0) {
+      return {
+        success: false,
+        error: "Delivery sender information not found",
+      };
+    }
 
     // Send notification email
     try {
       await sendDeliveryNotification({
         recipientEmail: delivery.recipient_email,
-        senderName: delivery.sender?.full_name || "Someone",
-        senderEmail: delivery.sender?.email || "unknown",
+        senderEmail: delivery.sender[0].email,
+        deliveryId: delivery.id,
         deliveryTitle: delivery.title,
-        deliveryMessage: delivery.message,
+        deliveryMessage: delivery.message || undefined,
+        expiresAt: delivery.expires_at,
+        maxViews: delivery.max_views,
+        maxDownloads: delivery.max_downloads,
+        fileCount: Array.isArray(delivery.files) ? delivery.files.length : 0,
         deliveryLink,
       });
 
       return { success: true };
-    } catch (emailError: any) {
-      console.error("[resendDeliveryNotification] Email error:", emailError);
+    } catch (emailError: unknown) {
+      console.error(
+        "[resendDeliveryNotification] Email error:",
+        emailError instanceof Error ? emailError.message : String(emailError)
+      );
       return { success: false, error: "Failed to send email notification" };
     }
-  } catch (error: any) {
-    console.error("[resendDeliveryNotification] Unexpected error:", error);
-    return { success: false, error: error?.message || "Server error" };
+  } catch (error: unknown) {
+    console.error(
+      "[resendDeliveryNotification] Unexpected error:",
+      error instanceof Error ? error.message : String(error)
+    );
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Server error",
+    };
   }
 }
 
@@ -183,6 +224,6 @@ export async function resendDeliveryNotification(deliveryId: string) {
  * Get delivery public link
  */
 export async function getDeliveryLink(deliveryId: string): Promise<string> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   return `${baseUrl}/delivery/${deliveryId}`;
 }

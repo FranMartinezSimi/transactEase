@@ -1,6 +1,6 @@
 import { resend, EMAIL_CONFIG } from "./resend";
 import { DeliveryNotificationEmail } from "@/emails/DeliveryNotification";
-import { createContextLogger } from "@/lib/logger";
+import { createContextLogger } from "@shared/lib/logger";
 
 const log = createContextLogger({ service: "EmailService" });
 
@@ -14,6 +14,7 @@ interface SendDeliveryNotificationParams {
   maxViews: number;
   maxDownloads: number;
   fileCount: number;
+  deliveryLink?: string; // Optional - will be built if not provided
 }
 
 export async function sendDeliveryNotification({
@@ -26,11 +27,13 @@ export async function sendDeliveryNotification({
   maxViews,
   maxDownloads,
   fileCount,
+  deliveryLink,
 }: SendDeliveryNotificationParams) {
   try {
-    // Build delivery link
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const deliveryLink = `${baseUrl}/delivery/${deliveryId}`;
+    // Use provided deliveryLink or build it if not provided
+    const finalDeliveryLink =
+      deliveryLink ||
+      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/delivery/${deliveryId}`;
 
     const emailLog = log.child({
       operation: "sendDeliveryNotification",
@@ -50,7 +53,7 @@ export async function sendDeliveryNotification({
         senderEmail,
         deliveryTitle,
         deliveryMessage,
-        deliveryLink,
+        deliveryLink: finalDeliveryLink,
         expiresAt,
         maxViews,
         maxDownloads,
@@ -63,12 +66,15 @@ export async function sendDeliveryNotification({
       throw new Error(`Failed to send email: ${error.message}`);
     }
 
-    emailLog.info({ emailId: data?.id }, "Delivery notification sent successfully");
+    emailLog.info(
+      { emailId: data?.id },
+      "Delivery notification sent successfully"
+    );
     return { success: true, emailId: data?.id };
-  } catch (error: any) {
+  } catch (error: unknown) {
     log.error(
       {
-        error,
+        error: error instanceof Error ? error.message : String(error),
         operation: "sendDeliveryNotification",
         recipientEmail,
         deliveryId,
@@ -86,6 +92,7 @@ interface SendDownloadNotificationParams {
   deliveryTitle: string;
   fileName: string;
   downloadedAt: string;
+  deliveryLink: string;
 }
 
 export async function sendDownloadNotification({
@@ -94,6 +101,7 @@ export async function sendDownloadNotification({
   deliveryTitle,
   fileName,
   downloadedAt,
+  deliveryLink,
 }: SendDownloadNotificationParams) {
   const downloadLog = log.child({
     operation: "sendDownloadNotification",
@@ -116,6 +124,7 @@ export async function sendDownloadNotification({
           <ul>
             <li><strong>Delivery:</strong> ${deliveryTitle}</li>
             <li><strong>File:</strong> ${fileName}</li>
+            <li><strong>Link:</strong> ${deliveryLink}</li>
             <li><strong>Downloaded by:</strong> ${recipientEmail}</li>
             <li><strong>Downloaded at:</strong> ${new Date(downloadedAt).toLocaleString()}</li>
           </ul>
@@ -133,8 +142,11 @@ export async function sendDownloadNotification({
 
     downloadLog.info({ emailId: data?.id }, "Download notification sent");
     return { success: true, emailId: data?.id };
-  } catch (error: any) {
-    downloadLog.error({ error }, "Error sending download notification");
+  } catch (error: unknown) {
+    downloadLog.error(
+      { error: error instanceof Error ? error.message : String(error) },
+      "Error sending download notification"
+    );
     return { success: false };
   }
 }
