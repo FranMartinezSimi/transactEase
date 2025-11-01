@@ -1,10 +1,5 @@
-import { z } from "zod";
-import {
-  emailValidator,
-  passwordValidator,
-  nameValidator,
-  uuidValidator,
-} from "@/shared/utils/validations/common";
+import { z } from "zod"
+import { emailValidator, passwordValidator, nameValidator, uuidValidator } from "./common"
 
 /**
  * Auth Validation Schemas
@@ -14,92 +9,79 @@ import {
  */
 
 // Re-export common validators for backward compatibility
-const email = emailValidator;
-const password = passwordValidator;
-const name = nameValidator;
+const email = emailValidator
+const password = passwordValidator
+const name = nameValidator
 
 // Login Schema
 export const loginSchema = z.object({
   email,
-  password: z.string().min(1, "Password is required"), // Less strict for login
-});
+  password: z.string().min(1, "Password is required") // Less strict for login
+})
 
-export type LoginFormData = z.infer<typeof loginSchema>;
+export type LoginFormData = z.infer<typeof loginSchema>
 
 // Register Schema
-export const registerSchema = z
-  .object({
-    name,
-    email,
-    company: z.string().optional(),
-    password,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+export const registerSchema = z.object({
+  name,
+  email,
+  company: z.string().optional(),
+  password,
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+})
 
-export type RegisterFormData = z.infer<typeof registerSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>
 
 // Forgot Password Schema
 export const forgotPasswordSchema = z.object({
-  email,
-});
+  email
+})
 
-export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
 
 // Reset Password Schema
-export const resetPasswordSchema = z
-  .object({
-    password,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+export const resetPasswordSchema = z.object({
+  password,
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+})
 
-export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
 // Update Profile Schema
-export const updateProfileSchema = z
-  .object({
-    name,
-    email,
-    company: z.string().optional(),
-    currentPassword: z.string().optional(),
-    newPassword: password.optional(),
-    confirmNewPassword: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      // If newPassword is provided, confirmNewPassword must match
-      if (data.newPassword && data.newPassword !== data.confirmNewPassword) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Passwords don't match",
-      path: ["confirmNewPassword"],
-    }
-  )
-  .refine(
-    (data) => {
-      // If changing password, current password is required
-      if (data.newPassword && !data.currentPassword) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Current password is required to set a new password",
-      path: ["currentPassword"],
-    }
-  );
+export const updateProfileSchema = z.object({
+  name,
+  email,
+  company: z.string().optional(),
+  currentPassword: z.string().optional(),
+  newPassword: password.optional(),
+  confirmNewPassword: z.string().optional()
+}).refine((data) => {
+  // If newPassword is provided, confirmNewPassword must match
+  if (data.newPassword && data.newPassword !== data.confirmNewPassword) {
+    return false
+  }
+  return true
+}, {
+  message: "Passwords don't match",
+  path: ["confirmNewPassword"]
+}).refine((data) => {
+  // If changing password, current password is required
+  if (data.newPassword && !data.currentPassword) {
+    return false
+  }
+  return true
+}, {
+  message: "Current password is required to set a new password",
+  path: ["currentPassword"]
+})
 
-export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
+export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>
 
 // =====================================================
 // OAUTH VALIDATION
@@ -112,9 +94,9 @@ export type UpdateProfileFormData = z.infer<typeof updateProfileSchema>;
 export const oauthCallbackSchema = z.object({
   code: z.string().min(1, "Authorization code is required"),
   state: z.string().optional(),
-});
+})
 
-export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>;
+export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>
 
 // =====================================================
 // INVITATION HANDLING
@@ -125,20 +107,18 @@ export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>;
  */
 export const acceptInvitationSchema = z.object({
   token: z.string().min(1, "Invitation token is required"),
-});
+})
 
-export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;
+export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>
 
 /**
  * Create invitation (admin/owner only)
  */
 export const createInvitationSchema = z.object({
   email,
-  role: z
-    .enum(["owner", "admin", "member"])
-    .refine((val) => ["owner", "admin", "member"].includes(val), {
-      message: "Invalid role",
-    }),
+  role: z.enum(["owner", "admin", "member"]).refine((val) => ["owner", "admin", "member"].includes(val), {
+    message: "Invalid role",
+  }),
   organizationId: uuidValidator,
   expiresInDays: z
     .number()
@@ -146,9 +126,9 @@ export const createInvitationSchema = z.object({
     .min(1, "Must expire in at least 1 day")
     .max(30, "Cannot expire after 30 days")
     .default(7),
-});
+})
 
-export type CreateInvitationInput = z.infer<typeof createInvitationSchema>;
+export type CreateInvitationInput = z.infer<typeof createInvitationSchema>
 
 // =====================================================
 // TEMPORARY USER AUTH
@@ -167,11 +147,9 @@ export const createTemporaryUserSchema = z.object({
     .min(1, "Must expire in at least 1 hour")
     .max(720, "Cannot expire after 30 days") // 30 days max
     .default(48), // 48 hours default
-});
+})
 
-export type CreateTemporaryUserInput = z.infer<
-  typeof createTemporaryUserSchema
->;
+export type CreateTemporaryUserInput = z.infer<typeof createTemporaryUserSchema>
 
 /**
  * Temporary user login
@@ -181,6 +159,6 @@ export const temporaryUserLoginSchema = z.object({
   email,
   temporaryPassword: z.string().min(1, "Temporary password is required"),
   deliveryId: uuidValidator.optional(),
-});
+})
 
-export type TemporaryUserLoginInput = z.infer<typeof temporaryUserLoginSchema>;
+export type TemporaryUserLoginInput = z.infer<typeof temporaryUserLoginSchema>

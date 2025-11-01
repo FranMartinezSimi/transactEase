@@ -8,10 +8,9 @@ import { Input } from "@shared/components/ui/input"
 import { Label } from "@shared/components/ui/label"
 import { Mail, Lock, User, Building2, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { registerSchema, type RegisterFormData } from "@/lib/validations/auth"
 import { toast } from "sonner"
 import { OAuthButton } from "@shared/components/auth/oauth-button"
-import { signInWithGoogle, signUpWithEmail } from "@/lib/auth"
+import { signInWithGoogle, signUpWithEmail, registerSchema, type RegisterFormData } from "@features/auth"
 
 type AuthMode = "google" | "credentials"
 

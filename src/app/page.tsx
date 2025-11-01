@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { WaitlistModal } from "@/components/waitlist-modal";
-import { FAQSection } from "@/components/faq-section";
-import { ProductShowcase } from "@/components/product-showcase";
-import { trackCTAClick } from "@/lib/analytics";
+import { WaitlistModal } from "@shared/components/waitlist-modal";
+import { FAQSection } from "@shared/components/faq-section";
+import { ProductShowcase } from "@shared/components/product-showcase";
+import { trackCTAClick } from "@shared/lib/analytics";
 import {
   Shield,
   Lock,

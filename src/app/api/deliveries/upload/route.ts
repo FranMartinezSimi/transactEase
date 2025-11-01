@@ -46,6 +46,7 @@ export async function POST(req: Request) {
     const expiresAtRaw = String(form.get("expiresAt") || "");
     const maxViews = Number(form.get("maxViews") || 10);
     const maxDownloads = Number(form.get("maxDownloads") || 5);
+    const createTempUser = form.get("createTempUser") === "true";
 
     if (!title || !recipientEmail || !expiresAtRaw || !file) {
       return NextResponse.json(
@@ -64,6 +65,56 @@ export async function POST(req: Request) {
         { message: "User without organization" },
         { status: 400 }
       );
+    }
+
+    // Create temporary user if requested
+    if (createTempUser) {
+      log.debug({ recipientEmail }, "Creating temporary user for external recipient");
+
+      // Check if user already exists
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("id, is_temporary")
+        .eq("email", recipientEmail)
+        .single();
+
+      if (!existingProfile) {
+        // Generate a random password for the temporary user
+        const tempPassword = crypto.randomBytes(16).toString("hex");
+        const expiresAt = new Date(expiresAtRaw);
+
+        // Create the temporary profile
+        const { error: tempUserError } = await supabase
+          .from("profiles")
+          .insert({
+            id: crypto.randomUUID(),
+            organization_id: profile.organization_id,
+            email: recipientEmail,
+            full_name: recipientEmail.split("@")[0], // Use email prefix as name
+            role: "member",
+            is_active: true,
+            is_temporary: true,
+            expires_at: expiresAt.toISOString(),
+            temporary_password: tempPassword,
+            email_verified: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+
+        if (tempUserError) {
+          log.error(
+            { error: tempUserError, recipientEmail },
+            "Failed to create temporary user"
+          );
+          // Don't fail the delivery, just log the error
+        } else {
+          log.info({ recipientEmail, expiresAt }, "Temporary user created successfully");
+        }
+      } else if (existingProfile.is_temporary) {
+        log.debug({ recipientEmail }, "Temporary user already exists, reusing existing profile");
+      } else {
+        log.debug({ recipientEmail }, "User already exists as permanent member, not creating temporary profile");
+      }
     }
 
     const repository = new DeliveryRepository(supabase);

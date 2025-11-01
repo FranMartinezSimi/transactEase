@@ -11,7 +11,19 @@
 export { useProfile } from "./hooks/useProfile";
 
 // Services
-export { signOut } from "./services/auth";
+export {
+  signInWithGoogle,
+  signInWithEmail,
+  signUpWithEmail,
+  signOut,
+  resetPassword,
+  getSession,
+  getUser,
+  isAuthenticated,
+  acceptInvitation,
+  onAuthStateChange,
+  type AuthResponse,
+} from "./services/auth";
 
 // Types & Validations
 export type { LoginFormData, RegisterFormData } from "./utils/auth";

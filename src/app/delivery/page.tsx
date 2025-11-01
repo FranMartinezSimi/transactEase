@@ -7,7 +7,17 @@ import { Input } from "@shared/components/ui/input";
 import { Label } from "@shared/components/ui/label";
 import { Textarea } from "@shared/components/ui/textarea";
 import { Switch } from "@shared/components/ui/switch";
-import { Upload, Loader2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@shared/components/ui/alert-dialog";
+import { Upload, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@shared/lib/supabase/client";
@@ -23,6 +33,7 @@ export default function Send() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [deliveryLink, setDeliveryLink] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showTempUserWarning, setShowTempUserWarning] = useState(false);
 
   // Fetch templates desde Supabase (cliente)
   const { data: templates = [] } = useQuery({
@@ -265,21 +276,30 @@ export default function Send() {
                 </div>
 
                 {/* Create Temporary User */}
-                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                  <div className="space-y-1">
-                    <Label htmlFor="createTempUser" className="text-base font-medium cursor-pointer">
-                      Create temporary user
-                    </Label>
+                <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border-2 border-orange-200">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="createTempUser" className="text-base font-medium cursor-pointer">
+                        External recipient (temporary user)
+                      </Label>
+                      <AlertTriangle className="h-4 w-4 text-orange-500" />
+                    </div>
                     <p className="text-sm text-muted-foreground">
-                      If the recipient is external, automatically create temporary access
+                      Enable this if the recipient is not part of your organization. A temporary account will be created automatically.
                     </p>
                   </div>
                   <Switch
                     id="createTempUser"
                     checked={formData.createTempUser}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, createTempUser: checked })
-                    }
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        // Show warning modal before enabling
+                        setShowTempUserWarning(true);
+                      } else {
+                        // Allow disabling without warning
+                        setFormData({ ...formData, createTempUser: false });
+                      }
+                    }}
                     disabled={isUploading}
                   />
                 </div>
@@ -332,6 +352,54 @@ export default function Send() {
             )}
           </CardContent>
         </Card>
+
+        {/* Temporary User Warning Modal */}
+        <AlertDialog open={showTempUserWarning} onOpenChange={setShowTempUserWarning}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2 text-orange-600">
+                <AlertTriangle className="h-5 w-5" />
+                External User Warning
+              </AlertDialogTitle>
+              <AlertDialogDescription className="space-y-3 pt-2">
+                <p className="font-medium text-foreground">
+                  You are about to create a temporary user account for an external recipient.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <p className="font-semibold text-foreground">Please be aware:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>This recipient is <strong>not part of your organization</strong></li>
+                    <li>A temporary account will be created with <strong>limited access</strong></li>
+                    <li>All activity will be <strong>logged and monitored</strong> for compliance</li>
+                    <li>The account will <strong>expire</strong> when the delivery expires</li>
+                    <li>External access carries <strong>additional security risks</strong></li>
+                  </ul>
+                </div>
+                <div className="bg-orange-50 border border-orange-200 rounded-md p-3 mt-3">
+                  <p className="text-sm text-orange-900">
+                    <strong>Recommendation:</strong> Only enable this for trusted external recipients.
+                    For internal communications, use organizational email addresses.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setFormData({ ...formData, createTempUser: false })}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  setFormData({ ...formData, createTempUser: true });
+                  setShowTempUserWarning(false);
+                  toast.info("Temporary user mode enabled. The recipient will receive temporary access.");
+                }}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                I Understand, Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AuthenticatedLayout>
   );

@@ -11,11 +11,13 @@
 // Components
 export { AuthenticatedLayout } from "./components/AuthenticatedLayout";
 export { ReactQueryProvider } from "./components/ReactQueryProvider";
+export { LocationPermission } from "./components/LocationPermission";
 export * from "./components/ui";
 
 // Hooks
 export { useMobile } from "./hooks/use-mobile";
 export { useTheme } from "./hooks/useTheme";
+export { useLocation } from "./hooks/useLocation";
 
 // Lib
 export { createClient } from "./lib/supabase/client";

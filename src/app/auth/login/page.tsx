@@ -9,7 +9,7 @@ import { Label } from "@shared/components/ui/label"
 import { Mail, Lock, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { OAuthButton } from "@shared/components/auth/oauth-button"
-import { signInWithGoogle, signInWithEmail } from "@/lib/auth"
+import { signInWithGoogle, signInWithEmail } from "@features/auth"
 import { toast } from "sonner"
 
 type AuthMode = "google" | "credentials"
