@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { createClient } from "@shared/lib/supabase/server";
 import { DeliveryRepository } from "@features/delivery/services/delivery.repository";
 import { DeliveryService } from "@features/delivery/services/delivery.service";
+import { getAWSConfig } from "@shared/lib/aws/config";
 
 export async function GET(
   req: NextRequest,
@@ -146,15 +147,13 @@ export async function DELETE(
       const { S3Client, DeleteObjectCommand } = await import(
         "@aws-sdk/client-s3"
       );
+      const awsConfig = getAWSConfig();
       const s3 = new S3Client({
-        region: process.env.AWS_S3_REGION || process.env.AWS_REGION!,
-        credentials: {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-        },
+        region: awsConfig.region,
+        credentials: awsConfig.credentials,
       });
 
-      const bucket = process.env.AWS_S3_BUCKET!;
+      const bucket = awsConfig.bucket;
 
       // Delete each file from S3
       for (const file of files) {
@@ -185,10 +184,12 @@ export async function DELETE(
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DELETE /api/deliveries/[id]] error:", error);
     return NextResponse.json(
-      { message: error?.message || "Server error" },
+      {
+        message: error instanceof Error ? error.message : "Server error",
+      },
       { status: 500 }
     );
   }

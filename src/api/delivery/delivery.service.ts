@@ -4,7 +4,7 @@ import {
   DeliveryStats,
   DeliveryWithFiles,
   DeliveryFilters,
-} from "../types/delivery.interface";
+} from "@features/delivery";
 import { createContextLogger } from "@shared/lib/logger";
 
 export class DeliveryService {
@@ -37,7 +37,7 @@ export class DeliveryService {
       const duration = Date.now() - startTime;
       log.info(
         {
-          deliveryId: newDelivery.id,
+          deliveryId: (newDelivery as any).id,
           duration,
         },
         "Delivery created successfully"
@@ -122,7 +122,7 @@ export class DeliveryService {
       log.info("Updating delivery status");
       const updated = await this.deliveryRepository.updateStatus(id, status);
       log.info(
-        { deliveryId: updated.id },
+        { deliveryId: (updated as any).id },
         "Delivery status updated successfully"
       );
       return updated;
@@ -143,8 +143,8 @@ export class DeliveryService {
       const updated = await this.deliveryRepository.incrementViews(id);
       log.info(
         {
-          deliveryId: updated.id,
-          views: updated.current_views,
+          deliveryId: (updated as any).id,
+          views: (updated as any).current_views,
         },
         "Delivery views incremented"
       );
@@ -166,8 +166,8 @@ export class DeliveryService {
       const updated = await this.deliveryRepository.incrementDownloads(id);
       log.info(
         {
-          deliveryId: updated.id,
-          downloads: updated.current_downloads,
+          deliveryId: (updated as any).id,
+          downloads: (updated as any).current_downloads,
         },
         "Delivery downloads incremented"
       );

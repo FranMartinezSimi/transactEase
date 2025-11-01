@@ -3,6 +3,8 @@ import { createClient } from "@shared/lib/supabase/server";
 import { DeliveryRepository } from "@features/delivery/services/delivery.repository";
 import { DeliveryService } from "@features/delivery/services/delivery.service";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { DeliveryWithFiles } from "@features/delivery/types/delivery.interface";
+import { getAWSConfig } from "@shared/lib/aws/config";
 
 export async function GET(
   request: NextRequest,
@@ -26,7 +28,8 @@ export async function GET(
     const service = new DeliveryService(repository);
 
     // 1. Get delivery and verify email
-    const delivery = await service.getDeliveryById(deliveryId);
+    const delivery: DeliveryWithFiles =
+      await service.getDeliveryById(deliveryId);
 
     // 2. Verify email matches recipient
     if (delivery.recipient_email.toLowerCase() !== email.toLowerCase()) {
@@ -76,15 +79,13 @@ export async function GET(
     }
 
     // 7. Download file from AWS S3
+    const awsConfig = getAWSConfig();
     const s3 = new S3Client({
-      region: process.env.AWS_S3_REGION || process.env.AWS_REGION!,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-      },
+      region: awsConfig.region,
+      credentials: awsConfig.credentials,
     });
 
-    const bucket = process.env.AWS_S3_BUCKET!;
+    const bucket = awsConfig.bucket;
 
     try {
       const command = new GetObjectCommand({
@@ -100,8 +101,16 @@ export async function GET(
 
       // Convert stream to buffer
       const chunks: Uint8Array[] = [];
-      for await (const chunk of response.Body as any) {
-        chunks.push(chunk);
+      // AWS SDK v3 returns a Readable stream in Node.js
+      const stream = response.Body as NodeJS.ReadableStream;
+      for await (const chunk of stream) {
+        if (chunk instanceof Uint8Array) {
+          chunks.push(chunk);
+        } else if (Buffer.isBuffer(chunk)) {
+          chunks.push(new Uint8Array(chunk));
+        } else {
+          chunks.push(new Uint8Array(Buffer.from(chunk)));
+        }
       }
       const fileBuffer = Buffer.concat(chunks);
 

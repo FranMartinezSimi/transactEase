@@ -658,7 +658,7 @@ export default function DeliveryViewPage({ params }: { params: Promise<{ id: str
                             {formatFileSize(file.size)} • {file.mime_type}
                           </p>
                         </div>
-                        <div className="flex gap-2 flex-shrink-0">
+                        <div className="flex gap-2 shrink-0">
                           <Button
                             variant="outline"
                             size="sm"

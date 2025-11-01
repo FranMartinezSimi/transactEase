@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { createClient } from "@shared/lib/supabase/server";
 import { DeliveryRepository } from "@features/delivery/services/delivery.repository";
 import { DeliveryService } from "@features/delivery/services/delivery.service";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  PutObjectCommand,
+  DeleteObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import crypto from "node:crypto";
 import { createContextLogger } from "@shared/lib/logger";
 import { sendDeliveryNotification } from "@shared/lib/email/send-delivery-notification";
+import { getAWSConfig } from "@shared/lib/aws/config";
 
 export async function POST(req: Request) {
   const log = createContextLogger({ operation: "uploadDelivery" });
@@ -26,12 +31,13 @@ export async function POST(req: Request) {
     let form: FormData;
     try {
       form = await req.formData();
-    } catch (formError: any) {
+    } catch (formError: unknown) {
       console.error("[upload] Failed to parse FormData:", formError);
       return NextResponse.json(
         {
           message: "Failed to parse form data",
-          error: formError?.message,
+          error:
+            formError instanceof Error ? formError.message : String(formError),
           contentType: req.headers.get("content-type"),
         },
         { status: 400 }
@@ -69,7 +75,10 @@ export async function POST(req: Request) {
 
     // Create temporary user if requested
     if (createTempUser) {
-      log.debug({ recipientEmail }, "Creating temporary user for external recipient");
+      log.debug(
+        { recipientEmail },
+        "Creating temporary user for external recipient"
+      );
 
       // Check if user already exists
       const { data: existingProfile } = await supabase
@@ -108,12 +117,21 @@ export async function POST(req: Request) {
           );
           // Don't fail the delivery, just log the error
         } else {
-          log.info({ recipientEmail, expiresAt }, "Temporary user created successfully");
+          log.info(
+            { recipientEmail, expiresAt },
+            "Temporary user created successfully"
+          );
         }
       } else if (existingProfile.is_temporary) {
-        log.debug({ recipientEmail }, "Temporary user already exists, reusing existing profile");
+        log.debug(
+          { recipientEmail },
+          "Temporary user already exists, reusing existing profile"
+        );
       } else {
-        log.debug({ recipientEmail }, "User already exists as permanent member, not creating temporary profile");
+        log.debug(
+          { recipientEmail },
+          "User already exists as permanent member, not creating temporary profile"
+        );
       }
     }
 
@@ -131,16 +149,15 @@ export async function POST(req: Request) {
       maxDownloads,
     });
 
-    const deliveryId = (delivery as any).id as string;
+    const deliveryId = delivery.id;
 
+    // Validate AWS configuration
+    const awsConfig = getAWSConfig();
     const s3 = new S3Client({
-      region: process.env.AWS_S3_REGION!,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-      },
+      region: awsConfig.region,
+      credentials: awsConfig.credentials,
     });
-    const bucket = process.env.AWS_S3_BUCKET!;
+    const bucket = awsConfig.bucket;
 
     const fileId = crypto.randomUUID();
     const originalName = file.name || "file";
@@ -154,14 +171,13 @@ export async function POST(req: Request) {
     // Hash SHA-256
     const fileHash = crypto.createHash("sha256").update(body).digest("hex");
 
-    const sse = process.env.AWS_S3_SSE === "aws:kms" ? "aws:kms" : "AES256";
     await s3.send(
       new PutObjectCommand({
         Bucket: bucket,
         Key: key,
         Body: body,
         ContentType: contentType,
-        ServerSideEncryption: sse,
+        ServerSideEncryption: awsConfig.sse || "AES256",
       })
     );
 
@@ -181,7 +197,6 @@ export async function POST(req: Request) {
         "Failed to create delivery_files record, attempting S3 rollback"
       );
       try {
-        const { DeleteObjectCommand } = await import("@aws-sdk/client-s3");
         await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
         log.info(
           { s3Key: key },
@@ -233,11 +248,14 @@ export async function POST(req: Request) {
         fileCount: 1,
       });
       log.info({ recipientEmail }, "Email notification sent successfully");
-    } catch (emailError: any) {
+    } catch (emailError: unknown) {
       // Log email error but don't fail the request
       log.error(
         {
-          error: emailError,
+          error:
+            emailError instanceof Error
+              ? emailError.message
+              : String(emailError),
           recipientEmail,
           deliveryId,
         },
@@ -257,7 +275,7 @@ export async function POST(req: Request) {
     );
 
     return NextResponse.json({ id: deliveryId }, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime;
     log.error(
       {
@@ -267,7 +285,9 @@ export async function POST(req: Request) {
       "Delivery upload failed"
     );
     return NextResponse.json(
-      { message: error?.message || "Server error" },
+      {
+        message: error instanceof Error ? error.message : "Server error",
+      },
       { status: 500 }
     );
   }

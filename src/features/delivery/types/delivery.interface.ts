@@ -1,4 +1,15 @@
-import { Delivery } from "@/hooks/useDeliveries";
+export interface Delivery {
+  id: string;
+  title: string;
+  message?: string;
+  recipient_email: string;
+  expires_at: string;
+  status: "active" | "expired" | "revoked";
+  current_views: number;
+  max_views: number;
+  current_downloads: number;
+  max_downloads: number;
+}
 
 export interface DeliveryFile {
   id: string;

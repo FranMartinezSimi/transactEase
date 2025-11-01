@@ -22,6 +22,9 @@ export async function POST(
   }
 
   const service = new DeliveryService(new DeliveryRepository(supabase));
-  const updated = await service.updateDeliveryStatus(id, status as any);
+  const updated = await service.updateDeliveryStatus(
+    id,
+    status as "active" | "expired" | "revoked"
+  );
   return NextResponse.json(updated, { status: 200 });
 }
