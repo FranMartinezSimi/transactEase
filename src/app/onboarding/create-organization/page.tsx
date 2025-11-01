@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { createClient } from "@shared/lib/supabase/client"
+import { Button } from "@shared/components/ui/button"
+import { Input } from "@shared/components/ui/input"
+import { Label } from "@shared/components/ui/label"
 import { Loader2, Building2 } from "lucide-react"
 import { toast } from "sonner"
-import { AuthCard } from "@/components/auth/auth-card"
+import { AuthCard } from "@shared/components/auth/auth-card"
 
 export default function CreateOrganizationPage() {
   const router = useRouter()

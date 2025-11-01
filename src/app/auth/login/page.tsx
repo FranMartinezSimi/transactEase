@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { AuthCard } from "@/components/auth/auth-card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { AuthCard } from "@shared/components/auth/auth-card"
+import { Button } from "@shared/components/ui/button"
+import { Input } from "@shared/components/ui/input"
+import { Label } from "@shared/components/ui/label"
 import { Mail, Lock, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { OAuthButton } from "@/components/auth/oauth-button"
+import { OAuthButton } from "@shared/components/auth/oauth-button"
 import { signInWithGoogle, signInWithEmail } from "@/lib/auth"
 import { toast } from "sonner"
 

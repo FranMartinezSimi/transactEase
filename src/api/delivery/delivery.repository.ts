@@ -1,6 +1,5 @@
-"use server";
-
 import { SupabaseClient } from "@supabase/supabase-js";
+import crypto from "node:crypto";
 import {
   IDeliveryRepository,
   CreateDeliveryData,
@@ -8,8 +7,6 @@ import {
   DeliveryWithFiles,
   DeliveryFilters,
 } from "./delivery.interface";
-import { createClient } from "@/lib/supabase/server";
-import { Delivery } from "@/hooks/useDeliveries";
 
 export class DeliveryRepository implements IDeliveryRepository {
   constructor(private readonly supabase: SupabaseClient) {}
@@ -34,8 +31,9 @@ export class DeliveryRepository implements IDeliveryRepository {
     return (data || []).map((d: any) => this.toDeliveryWithFiles(d));
   }
 
-  async create(data: CreateDeliveryData): Promise<Delivery> {
+  async create(data: CreateDeliveryData): Promise<DeliveryWithFiles> {
     const payload = {
+      id: crypto.randomUUID(),
       sender_id: data.senderId,
       organization_id: data.organizationId,
       title: data.title,
@@ -55,18 +53,18 @@ export class DeliveryRepository implements IDeliveryRepository {
       console.error("[DeliveryRepository] Error creating delivery:", error);
       throw error;
     }
-    return inserted as unknown as Delivery;
+    return inserted as unknown as DeliveryWithFiles;
   }
   updateStatus(
     id: string,
     status: "active" | "expired" | "revoked"
-  ): Promise<Delivery> {
+  ): Promise<DeliveryWithFiles> {
     return this.updateDelivery(id, { status });
   }
-  incrementViews(id: string): Promise<Delivery> {
+  incrementViews(id: string): Promise<DeliveryWithFiles> {
     return this.incrementField(id, "current_views");
   }
-  incrementDownloads(id: string): Promise<Delivery> {
+  incrementDownloads(id: string): Promise<DeliveryWithFiles> {
     return this.incrementField(id, "current_downloads");
   }
 
@@ -156,8 +154,14 @@ export class DeliveryRepository implements IDeliveryRepository {
     if (error) {
       console.error(
         "[DeliveryRepository] Error finding delivery by id:",
-        error
+        JSON.stringify(error, null, 2)
       );
+      console.error("[DeliveryRepository] Error details:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       return null;
     }
     return this.toDeliveryWithFiles(data as any);
@@ -212,7 +216,7 @@ export class DeliveryRepository implements IDeliveryRepository {
   private async incrementField(
     id: string,
     field: "current_views" | "current_downloads"
-  ): Promise<Delivery> {
+  ): Promise<DeliveryWithFiles> {
     const { data: current, error: getErr } = await this.supabase
       .from("deliveries")
       .select(`${field}`)
@@ -235,13 +239,13 @@ export class DeliveryRepository implements IDeliveryRepository {
       console.error(`[DeliveryRepository] Error incrementing ${field}:`, error);
       throw error;
     }
-    return updated as unknown as Delivery;
+    return updated as unknown as DeliveryWithFiles;
   }
 
   private async updateDelivery(
     id: string,
     changes: Record<string, unknown>
-  ): Promise<Delivery> {
+  ): Promise<DeliveryWithFiles> {
     const { data, error } = await this.supabase
       .from("deliveries")
       .update({ ...changes, updated_at: new Date().toISOString() })
@@ -252,7 +256,7 @@ export class DeliveryRepository implements IDeliveryRepository {
       console.error("[DeliveryRepository] Error updating delivery:", error);
       throw error;
     }
-    return data as unknown as Delivery;
+    return data as unknown as DeliveryWithFiles;
   }
 
   private applyFilters(query: any, filters: DeliveryFilters) {

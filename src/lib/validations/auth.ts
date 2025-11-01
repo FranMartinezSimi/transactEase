@@ -116,8 +116,8 @@ export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>
  */
 export const createInvitationSchema = z.object({
   email,
-  role: z.enum(["owner", "admin", "member"], {
-    errorMap: () => ({ message: "Invalid role" }),
+  role: z.enum(["owner", "admin", "member"]).refine((val) => ["owner", "admin", "member"].includes(val), {
+    message: "Invalid role",
   }),
   organizationId: uuidValidator,
   expiresInDays: z

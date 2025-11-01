@@ -17,13 +17,14 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Lista de rutas públicas
-  const publicPaths = ["/", "/coming-soon", "/delivery", "/deliveries"];
+  const publicPaths = ["/", "/coming-soon"];
 
   // Permitir assets de Next.js y archivos estáticos
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/public") ||
     pathname.startsWith("/api/waitlist") || // Permitir API de waitlist
+    pathname.startsWith("/api/delivery") || // Permitir API de delivery
     pathname.includes(".") // Archivos como favicon.ico, images, etc.
   ) {
     return NextResponse.next();
@@ -39,8 +40,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Permitir rutas protegidas (dashboard, onboarding)
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/onboarding")) {
+  // Permitir rutas de delivery (públicas para recipients)
+  if (pathname.startsWith("/delivery")) {
+    return NextResponse.next();
+  }
+
+  // Permitir rutas protegidas (dashboard, onboarding, send, audit)
+  if (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/send") ||
+    pathname.startsWith("/audit")
+  ) {
     return NextResponse.next();
   }
 

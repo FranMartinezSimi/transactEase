@@ -1,16 +1,16 @@
 "use client";
 import React, { useState } from "react";
-import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import { AuthenticatedLayout } from "@shared/components/AuthenticatedLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/components/ui/card";
+import { Button } from "@shared/components/ui/button";
+import { Input } from "@shared/components/ui/input";
+import { Label } from "@shared/components/ui/label";
+import { Textarea } from "@shared/components/ui/textarea";
+import { Switch } from "@shared/components/ui/switch";
 import { Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@shared/lib/supabase/client";
 import { TemplateSelector } from "@/components/delivery/TemplateSelector";
 import { DeliveryUploadArea } from "@/components/delivery/DeliveryUploadArea";
 import { SecurityControls } from "@/components/delivery/SecurityControls";
@@ -146,11 +146,10 @@ export default function Send() {
       }, 200);
 
       // Un solo endpoint hace todo: crea delivery, sube a S3, envía email
+      // No agregamos headers porque FormData necesita que el browser configure
+      // el Content-Type automáticamente con el boundary correcto
       const response = await fetch(`/api/deliveries/upload`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
         body: formDataUpload,
       });
 

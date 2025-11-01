@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { DeliveryRepository } from "@/api/delivery/delivery.repository";
-import { DeliveryService } from "@/api/delivery/delivery.service";
+import { createClient } from "@shared/lib/supabase/server";
+import { DeliveryRepository } from "@features/delivery/services/delivery.repository";
+import { DeliveryService } from "@features/delivery/services/delivery.service";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import crypto from "node:crypto";
+import { createContextLogger } from "@shared/lib/logger";
+import { sendDeliveryNotification } from "@shared/lib/email/send-delivery-notification";
 
 export async function POST(req: Request) {
+  const log = createContextLogger({ operation: "uploadDelivery" });
+  const startTime = Date.now();
+
   try {
     const supabase = await createClient();
 
-    // Autenticación: obtener usuario actual
     const {
       data: { user },
       error: authError,
@@ -18,7 +22,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const form = await req.formData();
+    // Parse FormData with error handling
+    let form: FormData;
+    try {
+      form = await req.formData();
+    } catch (formError: any) {
+      console.error("[upload] Failed to parse FormData:", formError);
+      return NextResponse.json(
+        {
+          message: "Failed to parse form data",
+          error: formError?.message,
+          contentType: req.headers.get("content-type"),
+        },
+        { status: 400 }
+      );
+    }
+
     const file = form.get("files") as File | null;
 
     const title = String(form.get("title") || "").trim();
@@ -27,8 +46,6 @@ export async function POST(req: Request) {
     const expiresAtRaw = String(form.get("expiresAt") || "");
     const maxViews = Number(form.get("maxViews") || 10);
     const maxDownloads = Number(form.get("maxDownloads") || 5);
-    const createTempUser =
-      String(form.get("createTempUser") || "false") === "true";
 
     if (!title || !recipientEmail || !expiresAtRaw || !file) {
       return NextResponse.json(
@@ -37,7 +54,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Obtener perfil para conocer la organización
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("organization_id")
@@ -64,7 +80,6 @@ export async function POST(req: Request) {
       maxDownloads,
     });
 
-    // Subir archivo a S3 y registrar en delivery_files
     const deliveryId = (delivery as any).id as string;
 
     const s3 = new S3Client({
@@ -85,6 +100,9 @@ export async function POST(req: Request) {
     const body = Buffer.from(arrayBuffer);
     const contentType = file.type || "application/octet-stream";
 
+    // Hash SHA-256
+    const fileHash = crypto.createHash("sha256").update(body).digest("hex");
+
     const sse = process.env.AWS_S3_SSE === "aws:kms" ? "aws:kms" : "AES256";
     await s3.send(
       new PutObjectCommand({
@@ -96,7 +114,6 @@ export async function POST(req: Request) {
       })
     );
 
-    // Crear registro en delivery_files
     const { error: filesError } = await supabase.from("delivery_files").insert({
       id: fileId,
       delivery_id: deliveryId,
@@ -105,113 +122,99 @@ export async function POST(req: Request) {
       mime_type: contentType,
       size: body.length,
       storage_path: key,
+      hash: fileHash,
     });
     if (filesError) {
-      // Intentar rollback del objeto subido
+      log.error(
+        { error: filesError, deliveryId, fileId, s3Key: key },
+        "Failed to create delivery_files record, attempting S3 rollback"
+      );
       try {
         const { DeleteObjectCommand } = await import("@aws-sdk/client-s3");
-        const { default: assert } = await import("node:assert");
         await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
+        log.info(
+          { s3Key: key },
+          "S3 object deleted successfully during rollback"
+        );
       } catch (e) {
-        console.error("[upload] rollback S3 failed:", e);
+        log.error(
+          { error: e, s3Key: key },
+          "S3 rollback failed - orphaned file may remain"
+        );
       }
-      console.error("[upload] error creating delivery_files:", filesError);
       return NextResponse.json(
         { message: "Error saving file metadata" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ id: deliveryId }, { status: 200 });
-  } catch (error: any) {
-    console.error("[POST /api/deliveries/upload] error:", error);
-    return NextResponse.json(
-      { message: error?.message || "Server error" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GetById(
-  req: Request,
-  context: { params: { id: string } }
-) {
-  try {
-    const { id } = context.params;
-    const url = new URL(req.url);
-    const token = url.searchParams.get("token") ?? undefined;
-    const emailProvided = url.searchParams.get("email") ?? undefined;
-    const fwd = req.headers.get("x-forwarded-for");
-    const ipAddress =
-      fwd?.split(",")[0]?.trim() ||
-      req.headers.get("x-real-ip") ||
-      req.headers.get("cf-connecting-ip") ||
-      req.headers.get("x-vercel-forwarded-for") ||
-      "";
-    const supabase = await createClient();
-    const { data: userData } = await supabase.auth.getUser();
-    const loggedUser = userData?.user ?? null;
-    if (!loggedUser) {
-      console.error("[GetById] No logged user");
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const repository = new DeliveryRepository(supabase);
-    const service = new DeliveryService(repository);
-
-    const hasAccess = await service.validateAccess(id, token, emailProvided);
-    if (!hasAccess) {
-      return NextResponse.json(
-        {
-          message: "Email verification required",
-          code: "EMAIL_VERIFICATION_REQUIRED",
-        },
-        { status: 401 }
+    const hashId = crypto.randomUUID();
+    const { error: hashError } = await supabase.from("document_hashes").insert({
+      id: hashId,
+      document_id: fileId,
+      delivery_id: deliveryId,
+      original_filename: originalName,
+      hash: fileHash,
+      algorithm: "SHA-256",
+      file_size: body.length,
+      mime_type: contentType,
+      updated_at: new Date().toISOString(),
+    });
+    if (hashError) {
+      log.warn(
+        { error: hashError },
+        "Failed to create document_hashes record (non-critical)"
       );
     }
 
-    const deliveryForViewer = await service.getDeliveryForViewer(
-      id,
-      loggedUser?.email || null
-    );
-    if (!deliveryForViewer) {
-      return NextResponse.json({ message: "Not found" }, { status: 404 });
+    // Send email notification to recipient
+    try {
+      log.debug({ recipientEmail }, "Sending delivery notification email");
+      await sendDeliveryNotification({
+        recipientEmail,
+        senderEmail: user.email || "unknown@sender.com",
+        deliveryId,
+        deliveryTitle: title,
+        deliveryMessage: message || undefined,
+        expiresAt: expiresAtRaw,
+        maxViews,
+        maxDownloads,
+        fileCount: 1,
+      });
+      log.info({ recipientEmail }, "Email notification sent successfully");
+    } catch (emailError: any) {
+      // Log email error but don't fail the request
+      log.error(
+        {
+          error: emailError,
+          recipientEmail,
+          deliveryId,
+        },
+        "Failed to send email notification (non-critical)"
+      );
+      // Continue - delivery was created successfully
     }
-    return NextResponse.json(deliveryForViewer, { status: 200 });
-  } catch (error: any) {
-    console.error("[GetById] error:", error);
-    return NextResponse.json(
-      { message: error?.message || "Server error" },
-      { status: 500 }
-    );
-  }
-}
 
-export async function DELETE(
-  req: Request,
-  context: { params: { id: string } }
-) {
-  try {
-    const { id } = context.params;
-    const client = await createClient();
-    const { data: userData } = await client.auth.getUser();
-    const loggedUser = userData?.user ?? null;
-    if (!loggedUser) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-    const repository = new DeliveryRepository(client);
-    const service = new DeliveryService(repository);
-    const delivery = await service.getDeliveryById(id);
-    if (!delivery) {
-      return NextResponse.json({ message: "Not found" }, { status: 404 });
-    }
-    if (loggedUser && loggedUser.email !== (delivery as any).recipient_email) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-    await service.deleteDelivery(id);
-    return NextResponse.json({ message: "Deleted" }, { status: 200 });
+    const duration = Date.now() - startTime;
+    log.info(
+      {
+        deliveryId,
+        duration,
+        fileSize: body.length,
+      },
+      "Delivery upload completed successfully"
+    );
+
+    return NextResponse.json({ id: deliveryId }, { status: 200 });
   } catch (error: any) {
-    console.error("[DELETE] error:", error);
+    const duration = Date.now() - startTime;
+    log.error(
+      {
+        error,
+        duration,
+      },
+      "Delivery upload failed"
+    );
     return NextResponse.json(
       { message: error?.message || "Server error" },
       { status: 500 }

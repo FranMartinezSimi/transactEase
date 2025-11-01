@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
       ignore: [/\/api\/v1\/health/],
     },
   },
+  experimental: {
+    // Increase body size limit for file uploads
+    serverActions: {
+      bodySizeLimit: "100mb",
+    },
+  },
 };
 
 export default nextConfig;
