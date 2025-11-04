@@ -8,7 +8,6 @@ import {
   Section,
   Text,
 } from "@react-email/components";
-import * as React from "react";
 
 interface AccessCodeEmailProps {
   recipientEmail: string;
@@ -18,7 +17,6 @@ interface AccessCodeEmailProps {
 }
 
 export const AccessCodeEmail = ({
-  recipientEmail = "recipient@example.com",
   accessCode = "123456",
   deliveryTitle = "Important Documents",
   expiresInMinutes = 15,
