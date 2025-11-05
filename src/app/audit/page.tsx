@@ -48,66 +48,6 @@ import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, startOf
 import { es } from "date-fns/locale";
 import { cn } from "@shared/utils/utils";
 
-// Mock data - replace with API call
-const mockAuditLogs = [
-  {
-    id: "1",
-    timestamp: new Date("2025-01-15T14:30:00"),
-    action: "view",
-    deliveryTitle: "Q4 2024 Contract.pdf",
-    recipientEmail: "client@company.com",
-    recipientName: "John Smith",
-    senderEmail: "admin@mycompany.com",
-    senderName: "Sarah Johnson",
-    ip: "192.168.1.100",
-    location: "New York, US",
-    status: "success",
-    details: "Document viewed for 3m 42s",
-  },
-  {
-    id: "2",
-    timestamp: new Date("2025-01-15T14:25:00"),
-    action: "download",
-    deliveryTitle: "Q4 2024 Contract.pdf",
-    recipientEmail: "client@company.com",
-    recipientName: "John Smith",
-    senderEmail: "admin@mycompany.com",
-    senderName: "Sarah Johnson",
-    ip: "192.168.1.100",
-    location: "New York, US",
-    status: "success",
-    details: "File downloaded (2.4 MB)",
-  },
-  {
-    id: "3",
-    timestamp: new Date("2025-01-15T10:15:00"),
-    action: "access_attempt",
-    deliveryTitle: "AWS Credentials.txt",
-    recipientEmail: "unknown",
-    recipientName: "Unknown",
-    senderEmail: "developer@mycompany.com",
-    senderName: "Michael Chen",
-    ip: "203.0.113.42",
-    location: "Unknown Location",
-    status: "failed",
-    details: "Failed password attempt (1/3)",
-  },
-  {
-    id: "4",
-    timestamp: new Date("2025-01-14T16:45:00"),
-    action: "expired",
-    deliveryTitle: "Business Proposal.pdf",
-    recipientEmail: "prospect@client.com",
-    recipientName: "Emma Wilson",
-    senderEmail: "sales@mycompany.com",
-    senderName: "David Brown",
-    ip: "-",
-    location: "-",
-    status: "expired",
-    details: "Document expired by time (24h)",
-  },
-];
-
 type ActionType = "view" | "download" | "access_attempt" | "expired" | "security_alert" | "all";
 
 export default function Audit() {
@@ -203,7 +143,6 @@ export default function Audit() {
   const hasActiveFilters =
     dateFrom || dateTo || searchEmail || (searchDomain && searchDomain !== "all-domains") || actionFilter !== "all" || senderFilter !== "all";
 
-  // Handle CSV export
   const handleExportCSV = () => {
     try {
       if (filteredLogs.length === 0) {

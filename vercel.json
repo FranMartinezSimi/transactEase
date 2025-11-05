@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cronjobs",
+      "schedule": "0 45 * * *"
+    }
+  ],
   "redirects": [
     {
       "source": "/:path*",

@@ -86,7 +86,6 @@ export async function GET(req: NextRequest) {
     }
 
     const repository = new DeliveryRepository(supabase);
-    const service = new DeliveryService(repository);
 
     // Build filters based on query params, defaulting to user's organization
     const filters: any = {
