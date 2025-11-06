@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@shared/lib/supabase/server";
 import { DeliveryRepository } from "@features/delivery/services/delivery.repository";
 import { DeliveryService } from "@features/delivery/services/delivery.service";
@@ -11,8 +11,10 @@ import crypto from "node:crypto";
 import { createContextLogger } from "@shared/lib/logger";
 import { sendDeliveryNotification } from "@shared/lib/email/send-delivery-notification";
 import { getAWSConfig } from "@shared/lib/aws/config";
+import { withRateLimit, RateLimitPresets } from "@shared/lib/rate-limit";
+import { sanitizeText, sanitizeEmail, sanitizeFilename } from "@shared/lib/sanitize";
 
-export async function POST(req: Request) {
+async function uploadHandler(req: NextRequest) {
   const log = createContextLogger({ operation: "uploadDelivery" });
   const startTime = Date.now();
 
@@ -46,9 +48,10 @@ export async function POST(req: Request) {
 
     const file = form.get("files") as File | null;
 
-    const title = String(form.get("title") || "").trim();
-    const recipientEmail = String(form.get("recipientEmail") || "").trim();
-    const message = String(form.get("message") || "").trim();
+    // Sanitize all inputs
+    const title = sanitizeText(String(form.get("title") || "").trim());
+    const recipientEmail = sanitizeEmail(String(form.get("recipientEmail") || "").trim());
+    const message = sanitizeText(String(form.get("message") || "").trim());
     const expiresAtRaw = String(form.get("expiresAt") || "");
     const maxViews = Number(form.get("maxViews") || 10);
     const maxDownloads = Number(form.get("maxDownloads") || 5);
@@ -286,9 +289,12 @@ export async function POST(req: Request) {
     );
     return NextResponse.json(
       {
-        message: error instanceof Error ? error.message : "Server error",
+        message: "Internal server error",
       },
       { status: 500 }
     );
   }
 }
+
+// Apply rate limiting to the upload endpoint (10 uploads per 5 minutes)
+export const POST = withRateLimit(uploadHandler, RateLimitPresets.upload);

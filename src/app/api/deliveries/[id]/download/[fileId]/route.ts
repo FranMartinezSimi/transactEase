@@ -5,6 +5,8 @@ import { DeliveryService } from "@features/delivery/services/delivery.service";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { DeliveryWithFiles } from "@features/delivery/types/delivery.interface";
 import { getAWSConfig } from "@shared/lib/aws/config";
+import { deleteDeliveryFilesFromS3 } from "@shared/lib/aws/delete-delivery-files";
+import { logger } from "@shared/lib/logger";
 
 export async function GET(
   request: NextRequest,
@@ -120,6 +122,17 @@ export async function GET(
       // Check if download limit reached and update status
       const updatedDelivery = await service.getDeliveryById(deliveryId);
       if (updatedDelivery.current_downloads >= updatedDelivery.max_downloads) {
+        logger.info({
+          message: "Download quota reached, deleting files",
+          deliveryId,
+          currentDownloads: updatedDelivery.current_downloads,
+          maxDownloads: updatedDelivery.max_downloads,
+        });
+
+        // Delete files from S3
+        await deleteDeliveryFilesFromS3(deliveryId, supabase);
+
+        // Update status to expired
         await service.updateDeliveryStatus(deliveryId, "expired");
       }
 
@@ -161,6 +174,17 @@ export async function GET(
       });
     } catch (s3Error) {
       console.error("[Download] S3 error:", s3Error);
+
+      // If S3 file is missing or corrupted, mark delivery as expired and delete
+      logger.error({
+        message: "S3 error during download, marking delivery as expired",
+        deliveryId,
+        error: s3Error,
+      });
+
+      await deleteDeliveryFilesFromS3(deliveryId, supabase);
+      await service.updateDeliveryStatus(deliveryId, "expired");
+
       return NextResponse.json(
         { error: "Failed to download file from storage" },
         { status: 500 }

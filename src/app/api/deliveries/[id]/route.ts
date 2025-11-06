@@ -3,6 +3,8 @@ import { createClient } from "@shared/lib/supabase/server";
 import { DeliveryRepository } from "@features/delivery/services/delivery.repository";
 import { DeliveryService } from "@features/delivery/services/delivery.service";
 import { getAWSConfig } from "@shared/lib/aws/config";
+import { deleteDeliveryFilesFromS3 } from "@shared/lib/aws/delete-delivery-files";
+import { logger } from "@shared/lib/logger";
 
 export async function GET(
   req: NextRequest,
@@ -48,6 +50,17 @@ export async function GET(
   // Check if view limit reached and update status to expired
   const updatedDelivery = await service.getDeliveryById(id);
   if (updatedDelivery.current_views >= updatedDelivery.max_views) {
+    logger.info({
+      message: "View quota reached, deleting files",
+      deliveryId: id,
+      currentViews: updatedDelivery.current_views,
+      maxViews: updatedDelivery.max_views,
+    });
+
+    // Delete files from S3
+    await deleteDeliveryFilesFromS3(id, supabase);
+
+    // Update status to expired
     await service.updateDeliveryStatus(id, "expired");
   }
 

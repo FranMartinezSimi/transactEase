@@ -1,21 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@shared/lib/supabase/server";
+import { deleteDeliveryFilesFromS3 } from "@shared/lib/aws/delete-delivery-files";
+import { logger } from "@shared/lib/logger";
+import { withRateLimit, RateLimitPresets } from "@shared/lib/rate-limit";
+import { verifyAccessSchema } from "@shared/utils/validations/delivery";
+import { sanitizeEmail } from "@shared/lib/sanitize";
+import { ZodError } from "zod";
 
-export async function POST(
+async function verifyAccessHandler(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: deliveryId } = await context.params;
     const body = await req.json();
-    const { code, email } = body;
 
-    if (!code || !email) {
+    // Validate and sanitize input
+    const validation = verifyAccessSchema.safeParse({
+      code: body.code,
+      email: sanitizeEmail(body.email),
+    });
+
+    if (!validation.success) {
+      const errors = validation.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
       return NextResponse.json(
-        { message: "Code and email are required" },
+        {
+          message: "Invalid input",
+          errors,
+        },
         { status: 400 }
       );
     }
+
+    const { code, email } = validation.data;
 
     const supabase = await createClient();
 
@@ -48,6 +69,20 @@ export async function POST(
 
     // Check if max attempts reached
     if (accessCodeRecord.attempts >= accessCodeRecord.max_attempts) {
+      // Delete files from S3 and mark delivery as expired
+      logger.info({
+        message: "Max verification attempts reached, deleting files",
+        deliveryId,
+      });
+
+      await deleteDeliveryFilesFromS3(deliveryId, supabase);
+
+      // Update delivery status to expired
+      await supabase
+        .from("deliveries")
+        .update({ status: "expired" })
+        .eq("id", deliveryId);
+
       return NextResponse.json(
         {
           message:
@@ -68,6 +103,31 @@ export async function POST(
         .eq("id", accessCodeRecord.id);
 
       const attemptsRemaining = accessCodeRecord.max_attempts - newAttempts;
+
+      // If this was the last attempt, delete files and mark as expired
+      if (attemptsRemaining <= 0) {
+        logger.info({
+          message: "Last attempt failed, deleting files",
+          deliveryId,
+        });
+
+        await deleteDeliveryFilesFromS3(deliveryId, supabase);
+
+        // Update delivery status to expired
+        await supabase
+          .from("deliveries")
+          .update({ status: "expired" })
+          .eq("id", deliveryId);
+
+        return NextResponse.json(
+          {
+            message:
+              "Maximum verification attempts reached. Delivery has been expired.",
+            attemptsRemaining: 0,
+          },
+          { status: 403 }
+        );
+      }
 
       return NextResponse.json(
         {
@@ -129,10 +189,17 @@ export async function POST(
       verified: true,
     });
   } catch (error: any) {
-    console.error("[POST /api/deliveries/[id]/verify-access] error:", error);
+    logger.error({
+      message: "Error in verify-access endpoint",
+      deliveryId: context?.params ? await context.params.then(p => p.id) : "unknown",
+      error,
+    });
     return NextResponse.json(
-      { message: error?.message || "Server error" },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
 }
+
+// Apply rate limiting to the endpoint (strict - 5 requests per minute)
+export const POST = withRateLimit(verifyAccessHandler, RateLimitPresets.strict);

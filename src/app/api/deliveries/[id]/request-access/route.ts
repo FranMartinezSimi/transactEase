@@ -1,23 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@shared/lib/supabase/server";
 import { sendAccessCode } from "@shared/lib/email/send-access-code";
+import { deleteDeliveryFilesFromS3 } from "@shared/lib/aws/delete-delivery-files";
+import { logger } from "@shared/lib/logger";
+import { withRateLimit, RateLimitPresets } from "@shared/lib/rate-limit";
+import { requestAccessSchema } from "@shared/utils/validations/delivery";
+import { sanitizeEmail } from "@shared/lib/sanitize";
 import crypto from "node:crypto";
 
-export async function POST(
+async function requestAccessHandler(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: deliveryId } = await context.params;
     const body = await req.json();
-    const { email } = body;
 
-    if (!email) {
+    // Validate and sanitize input
+    const validation = requestAccessSchema.safeParse({
+      email: sanitizeEmail(body.email),
+    });
+
+    if (!validation.success) {
+      const errors = validation.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
       return NextResponse.json(
-        { message: "Email is required" },
+        {
+          message: "Invalid input",
+          errors,
+        },
         { status: 400 }
       );
     }
+
+    const { email } = validation.data;
 
     const supabase = await createClient();
 
@@ -99,7 +118,11 @@ export async function POST(
         expiresAt: expiresAt.toISOString(),
       });
     } catch (emailError: any) {
-      console.error("[request-access] Failed to send email:", emailError);
+      logger.error({
+        message: "Failed to send access code email",
+        deliveryId,
+        error: emailError,
+      });
       // Code was saved but email failed - still return success
       // User might retry and we can resend
       return NextResponse.json({
@@ -109,10 +132,17 @@ export async function POST(
       });
     }
   } catch (error: any) {
-    console.error("[POST /api/deliveries/[id]/request-access] error:", error);
+    logger.error({
+      message: "Error in request-access endpoint",
+      deliveryId: context?.params ? await context.params.then(p => p.id) : "unknown",
+      error,
+    });
     return NextResponse.json(
-      { message: error?.message || "Server error" },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
 }
+
+// Apply rate limiting to the endpoint (strict - 5 requests per minute)
+export const POST = withRateLimit(requestAccessHandler, RateLimitPresets.strict);

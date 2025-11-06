@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { applySecurityHeaders } from "@shared/lib/security-headers";
 
 /**
- * Middleware de protección de rutas
+ * Middleware de protección de rutas y security headers
  *
  * Rutas públicas:
  * - / (landing page)
@@ -9,6 +10,10 @@ import { NextResponse, type NextRequest } from "next/server";
  * - /auth/* (login, register, etc.)
  * - /_next/* (assets de Next.js)
  * - /favicon.ico y otros archivos estáticos
+ *
+ * Security:
+ * - Aplica headers de seguridad a todas las respuestas
+ * - CSP, HSTS, X-Frame-Options, etc.
  *
  * Todas las demás rutas redirigen a /coming-soon
  * hasta que estén listas para producción
@@ -19,52 +24,51 @@ export function middleware(request: NextRequest) {
   // Lista de rutas públicas
   const publicPaths = ["/", "/coming-soon"];
 
-  // Permitir assets de Next.js y archivos estáticos
+  // Permitir assets de Next.js y archivos estáticos (sin security headers)
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/public") ||
-    pathname.startsWith("/api/waitlist") || // Permitir API de waitlist
-    pathname.startsWith("/api/delivery") || // Permitir API de delivery
-    pathname.includes(".") // Archivos como favicon.ico, images, etc.
+    pathname.includes(".") && !pathname.startsWith("/api") // Archivos estáticos
   ) {
     return NextResponse.next();
   }
 
+  let response: NextResponse;
+
   // Permitir rutas públicas exactas
   if (publicPaths.includes(pathname)) {
-    return NextResponse.next();
+    response = NextResponse.next();
   }
-
   // Permitir rutas de autenticación
-  if (pathname.startsWith("/auth")) {
-    return NextResponse.next();
+  else if (pathname.startsWith("/auth")) {
+    response = NextResponse.next();
   }
-
   // Permitir rutas de delivery (públicas para recipients)
-  if (pathname.startsWith("/delivery")) {
-    return NextResponse.next();
+  else if (pathname.startsWith("/delivery")) {
+    response = NextResponse.next();
   }
-
   // Permitir rutas protegidas (dashboard, onboarding, send, audit)
-  if (
+  else if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/send") ||
     pathname.startsWith("/audit")
   ) {
-    return NextResponse.next();
+    response = NextResponse.next();
   }
-
   // Permitir API routes
-  if (pathname.startsWith("/api")) {
-    return NextResponse.next();
+  else if (pathname.startsWith("/api")) {
+    response = NextResponse.next();
+  }
+  // Por defecto, redirigir a coming soon
+  else {
+    console.log(
+      `🚧 Ruta en desarrollo: ${pathname} → redirigiendo a /coming-soon`
+    );
+    response = NextResponse.redirect(new URL("/coming-soon", request.url));
   }
 
-  // Por defecto, redirigir a coming soon
-  console.log(
-    `🚧 Ruta en desarrollo: ${pathname} → redirigiendo a /coming-soon`
-  );
-  return NextResponse.redirect(new URL("/coming-soon", request.url));
+  // Aplicar security headers a todas las respuestas
+  return applySecurityHeaders(response);
 }
 
 /**
