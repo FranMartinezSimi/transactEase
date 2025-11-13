@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 /**
  * File/Document Validation Schemas
@@ -7,11 +7,11 @@ import { z } from "zod"
  */
 
 // File size limits (in bytes)
-const MAX_FILE_SIZE = 300 * 1024 * 1024 // 300MB (configurable in your settings)
-const MIN_FILE_SIZE = 1 // 1 byte
+export const MAX_FILE_SIZE = 300 * 1024 * 1024; // 300MB (configurable in your settings)
+export const MIN_FILE_SIZE = 1; // 1 byte
 
 // Allowed MIME types (expand as needed)
-const ALLOWED_FILE_TYPES = [
+export const ALLOWED_FILE_TYPES = [
   // Documents
   "application/pdf",
   "application/msword",
@@ -32,61 +32,71 @@ const ALLOWED_FILE_TYPES = [
   // Text
   "text/plain",
   "text/csv",
-]
+];
 
 // Send File Schema
-export const sendFileSchema = z.object({
-  file: z
-    .instanceof(File)
-    .refine((file) => file.size > MIN_FILE_SIZE, "File is required")
-    .refine((file) => file.size <= MAX_FILE_SIZE, `File size must be less than ${MAX_FILE_SIZE / 1024 / 1024}MB`)
-    .refine((file) => ALLOWED_FILE_TYPES.includes(file.type), "File type not supported"),
+export const sendFileSchema = z
+  .object({
+    file: z
+      .instanceof(File)
+      .refine((file) => file.size > MIN_FILE_SIZE, "File is required")
+      .refine(
+        (file) => file.size <= MAX_FILE_SIZE,
+        `File size must be less than ${MAX_FILE_SIZE / 1024 / 1024}MB`
+      )
+      .refine(
+        (file) => ALLOWED_FILE_TYPES.includes(file.type),
+        "File type not supported"
+      ),
 
-  recipientEmail: z
-    .string()
-    .email("Invalid email address")
-    .optional(),
+    recipientEmail: z.string().email("Invalid email address").optional(),
 
-  expiresIn: z.enum(["1h", "24h", "7d", "30d", "never"]).default("24h"),
+    expiresIn: z.enum(["1h", "24h", "7d", "30d", "never"]).default("24h"),
 
-  maxViews: z
-    .number()
-    .int("Must be a whole number")
-    .min(1, "Must allow at least 1 view")
-    .max(100, "Cannot exceed 100 views")
-    .optional(),
+    maxViews: z
+      .number()
+      .int("Must be a whole number")
+      .min(1, "Must allow at least 1 view")
+      .max(100, "Cannot exceed 100 views")
+      .optional(),
 
-  requirePassword: z.boolean().default(false),
+    requirePassword: z.boolean().default(false),
 
-  password: z.string().min(6, "Password must be at least 6 characters").optional(),
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters")
+      .optional(),
 
-  message: z
-    .string()
-    .max(500, "Message must be less than 500 characters")
-    .optional(),
+    message: z
+      .string()
+      .max(500, "Message must be less than 500 characters")
+      .optional(),
 
-  notifyOnAccess: z.boolean().default(true),
-})
-.refine((data) => {
-  // If requirePassword is true, password must be provided
-  if (data.requirePassword && !data.password) {
-    return false
-  }
-  return true
-}, {
-  message: "Password is required when password protection is enabled",
-  path: ["password"]
-})
+    notifyOnAccess: z.boolean().default(true),
+  })
+  .refine(
+    (data) => {
+      // If requirePassword is true, password must be provided
+      if (data.requirePassword && !data.password) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Password is required when password protection is enabled",
+      path: ["password"],
+    }
+  );
 
-export type SendFileFormData = z.infer<typeof sendFileSchema>
+export type SendFileFormData = z.infer<typeof sendFileSchema>;
 
 // Access File Schema (when recipient opens the link)
 export const accessFileSchema = z.object({
   linkId: z.string().uuid("Invalid link ID"),
   password: z.string().optional(),
-})
+});
 
-export type AccessFileData = z.infer<typeof accessFileSchema>
+export type AccessFileData = z.infer<typeof accessFileSchema>;
 
 // File Settings Schema (for updating file link settings)
 export const fileSettingsSchema = z.object({
@@ -95,13 +105,15 @@ export const fileSettingsSchema = z.object({
   requirePassword: z.boolean().optional(),
   password: z.string().min(6).optional(),
   notifyOnAccess: z.boolean().optional(),
-})
+});
 
-export type FileSettingsData = z.infer<typeof fileSettingsSchema>
+export type FileSettingsData = z.infer<typeof fileSettingsSchema>;
 
 // Bulk Delete Schema
 export const bulkDeleteSchema = z.object({
-  fileIds: z.array(z.string().uuid()).min(1, "Select at least one file to delete")
-})
+  fileIds: z
+    .array(z.string().uuid())
+    .min(1, "Select at least one file to delete"),
+});
 
-export type BulkDeleteData = z.infer<typeof bulkDeleteSchema>
+export type BulkDeleteData = z.infer<typeof bulkDeleteSchema>;

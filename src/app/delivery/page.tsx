@@ -324,7 +324,7 @@ export default function Send() {
                   maxViews={formData.maxViews}
                   maxDownloads={formData.maxDownloads}
                   disabled={isUploading}
-                  onChange={(p) => setFormData({ ...formData, ...p })}
+                  onChange={(p: { expirationHours?: string; maxViews?: string; maxDownloads?: string }) => setFormData({ ...formData, ...p })}
                 />
 
                 {/* Progress Bar */}
