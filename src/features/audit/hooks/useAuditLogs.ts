@@ -1,12 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/shared/lib/supabase/server";
 
 export interface AuditLog {
   id: string;
   timestamp: Date;
-  action: "view" | "download" | "access_attempt" | "expired" | "code_verified" | "code_requested" | "revoked";
+  action:
+    | "view"
+    | "download"
+    | "access_attempt"
+    | "expired"
+    | "code_verified"
+    | "code_requested"
+    | "revoked";
   deliveryTitle: string;
   deliveryId: string;
   recipientEmail: string;
@@ -52,7 +59,9 @@ export function useAuditLogs(options: UseAuditLogsOptions = {}) {
       const supabase = createClient();
 
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await (await supabase).auth.getUser();
       if (!user) {
         setLogs([]);
         setLoading(false);
@@ -60,7 +69,7 @@ export function useAuditLogs(options: UseAuditLogsOptions = {}) {
       }
 
       // Get user's organization
-      const { data: profile } = await supabase
+      const { data: profile } = await (await supabase)
         .from("profiles")
         .select("organization_id, role")
         .eq("id", user.id)
@@ -74,9 +83,10 @@ export function useAuditLogs(options: UseAuditLogsOptions = {}) {
 
       // Build query
       // Note: access_logs table uses 'timestamp' column, not 'created_at'
-      let query = supabase
+      let query = (await supabase)
         .from("access_logs")
-        .select(`
+        .select(
+          `
           *,
           deliveries!access_logs_delivery_id_fkey (
             id,
@@ -90,7 +100,8 @@ export function useAuditLogs(options: UseAuditLogsOptions = {}) {
               email
             )
           )
-        `)
+        `
+        )
         .order("timestamp", { ascending: false });
 
       // If not admin, only show logs for own deliveries
@@ -98,13 +109,13 @@ export function useAuditLogs(options: UseAuditLogsOptions = {}) {
 
       if (!isAdmin) {
         // Get logs for deliveries sent by this user
-        const { data: userDeliveries } = await supabase
+        const { data: userDeliveries } = await (await supabase)
           .from("deliveries")
           .select("id")
           .eq("sender_id", user.id);
 
         if (userDeliveries && userDeliveries.length > 0) {
-          const deliveryIds = userDeliveries.map(d => d.id);
+          const deliveryIds = userDeliveries.map((d) => d.id);
           query = query.in("delivery_id", deliveryIds);
         } else {
           setLogs([]);
@@ -149,24 +160,37 @@ export function useAuditLogs(options: UseAuditLogsOptions = {}) {
           }
 
           // Determine status
-          let status: "success" | "failed" | "expired" | "revoked" = log.success ? "success" : "failed";
+          let status: "success" | "failed" | "expired" | "revoked" = log.success
+            ? "success"
+            : "failed";
           if (delivery.status === "expired") status = "expired";
           if (delivery.status === "revoked") status = "revoked";
 
           // Generate details message
           const viewerType = log.metadata?.viewer_type;
-          const viewerLabel = viewerType === "recipient" ? "Recipient" : viewerType === "sender" ? "Sender" : "";
+          const viewerLabel =
+            viewerType === "recipient"
+              ? "Recipient"
+              : viewerType === "sender"
+                ? "Sender"
+                : "";
 
           let details = "";
           switch (log.action) {
             case "view":
-              details = viewerLabel ? `${viewerLabel} viewed document` : `Document viewed`;
+              details = viewerLabel
+                ? `${viewerLabel} viewed document`
+                : `Document viewed`;
               break;
             case "download":
-              details = viewerLabel ? `${viewerLabel} downloaded file` : `File downloaded`;
+              details = viewerLabel
+                ? `${viewerLabel} downloaded file`
+                : `File downloaded`;
               break;
             case "code_verified":
-              details = viewerLabel ? `${viewerLabel} verified access code` : `Access code verified successfully`;
+              details = viewerLabel
+                ? `${viewerLabel} verified access code`
+                : `Access code verified successfully`;
               break;
             case "code_requested":
               details = `Access code requested`;
@@ -204,15 +228,22 @@ export function useAuditLogs(options: UseAuditLogsOptions = {}) {
       // Apply email filter (client-side for simplicity)
       let filteredLogs = transformedLogs;
       if (options.searchEmail) {
-        filteredLogs = filteredLogs.filter((log) =>
-          log.recipientEmail.toLowerCase().includes(options.searchEmail!.toLowerCase()) ||
-          log.senderEmail.toLowerCase().includes(options.searchEmail!.toLowerCase())
+        filteredLogs = filteredLogs.filter(
+          (log) =>
+            log.recipientEmail
+              .toLowerCase()
+              .includes(options.searchEmail!.toLowerCase()) ||
+            log.senderEmail
+              .toLowerCase()
+              .includes(options.searchEmail!.toLowerCase())
         );
       }
 
       // Apply sender filter
       if (options.senderFilter && options.senderFilter !== "all") {
-        filteredLogs = filteredLogs.filter((log) => log.senderEmail === options.senderFilter);
+        filteredLogs = filteredLogs.filter(
+          (log) => log.senderEmail === options.senderFilter
+        );
       }
 
       setLogs(filteredLogs);

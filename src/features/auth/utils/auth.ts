@@ -117,40 +117,6 @@ export const oauthCallbackSchema = z.object({
 export type OAuthCallbackInput = z.infer<typeof oauthCallbackSchema>;
 
 // =====================================================
-// INVITATION HANDLING
-// =====================================================
-
-/**
- * Accept organization invitation
- */
-export const acceptInvitationSchema = z.object({
-  token: z.string().min(1, "Invitation token is required"),
-});
-
-export type AcceptInvitationInput = z.infer<typeof acceptInvitationSchema>;
-
-/**
- * Create invitation (admin/owner only)
- */
-export const createInvitationSchema = z.object({
-  email,
-  role: z
-    .enum(["owner", "admin", "member"])
-    .refine((val) => ["owner", "admin", "member"].includes(val), {
-      message: "Invalid role",
-    }),
-  organizationId: uuidValidator,
-  expiresInDays: z
-    .number()
-    .int()
-    .min(1, "Must expire in at least 1 day")
-    .max(30, "Cannot expire after 30 days")
-    .default(7),
-});
-
-export type CreateInvitationInput = z.infer<typeof createInvitationSchema>;
-
-// =====================================================
 // TEMPORARY USER AUTH
 // =====================================================
 

@@ -263,50 +263,6 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 // =====================================================
-// INVITATION HANDLING
-// =====================================================
-
-/**
- * Accept an organization invitation
- */
-export async function acceptInvitation(
-  invitationToken: string
-): Promise<AuthResponse> {
-  try {
-    const supabase = createClient()
-
-    const { data, error } = await supabase.rpc('accept_invitation', {
-      invitation_token: invitationToken,
-    })
-
-    if (error) {
-      console.error('[Auth] Accept invitation error:', error)
-      return {
-        success: false,
-        error: error.message,
-      }
-    }
-
-    if (!data || !data.success) {
-      return {
-        success: false,
-        error: data?.error || 'Failed to accept invitation',
-      }
-    }
-
-    return {
-      success: true,
-    }
-  } catch (error) {
-    console.error('[Auth] Unexpected error accepting invitation:', error)
-    return {
-      success: false,
-      error: 'An unexpected error occurred',
-    }
-  }
-}
-
-// =====================================================
 // AUTH STATE LISTENER
 // =====================================================
 

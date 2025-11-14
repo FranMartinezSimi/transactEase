@@ -64,13 +64,67 @@ export async function GET(request: NextRequest) {
     });
 
     // Check if user has a profile
-    const { data: profile, error: profileError } = await supabase
+    let { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("id, organization_id, role, is_temporary")
+      .select("id, organization_id, role, is_temporary, is_active")
       .eq("id", user.id)
       .single();
 
-    if (profileError) {
+    // If no profile or no organization, check if email domain matches any organization
+    if (!profile?.organization_id && user.email) {
+      const emailDomain = user.email.split("@")[1];
+      console.log("[OAuth Callback] No organization assigned, checking domain match for:", {
+        email: user.email,
+        domain: emailDomain,
+      });
+
+      // Find organization with matching domain
+      const { data: organizations, error: orgError } = await supabase
+        .from("organizations")
+        .select("id, name, domain")
+        .eq("domain", emailDomain);
+
+      if (!orgError && organizations && organizations.length > 0) {
+        const org = organizations[0]; // Take first match
+        console.log("[OAuth Callback] Found organization with matching domain:", {
+          org_id: org.id,
+          org_name: org.name,
+          domain: org.domain,
+        });
+
+        // Assign user to organization with default "member" role
+        // TODO: In future, check if admin pre-assigned a specific role for this email
+        const assignedRole = "member";
+
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({
+            organization_id: org.id,
+            role: assignedRole,
+            is_active: true,
+          })
+          .eq("id", user.id);
+
+        if (updateError) {
+          console.error("[OAuth Callback] Error assigning to organization:", updateError);
+        } else {
+          console.log("[OAuth Callback] Successfully auto-assigned user to organization based on domain match");
+
+          // Fetch updated profile
+          const { data: updatedProfile } = await supabase
+            .from("profiles")
+            .select("id, organization_id, role, is_temporary, is_active")
+            .eq("id", user.id)
+            .single();
+
+          profile = updatedProfile;
+        }
+      } else {
+        console.log("[OAuth Callback] No organization found with matching domain:", emailDomain);
+      }
+    }
+
+    if (profileError && !profile) {
       console.error("[OAuth Callback] Error fetching profile:", profileError);
       // Profile might not exist yet, trigger should create it
       // But we'll still redirect to dashboard - middleware will handle it
@@ -80,6 +134,7 @@ export async function GET(request: NextRequest) {
       hasProfile: !!profile,
       hasOrganization: !!profile?.organization_id,
       role: profile?.role,
+      isActive: profile?.is_active,
     });
 
     // Determine redirect destination
@@ -88,24 +143,9 @@ export async function GET(request: NextRequest) {
     if (profile) {
       if (!profile.organization_id) {
         // User doesn't have an organization yet
-        // Check if they have a pending invitation
-        const { data: invitation } = await supabase
-          .from("invitations")
-          .select("token, organization_id, role")
-          .eq("email", user.email)
-          .eq("status", "pending")
-          .gte("expires_at", new Date().toISOString())
-          .single();
-
-        if (invitation) {
-          // Redirect to accept invitation
-          redirectTo = `/auth/accept-invitation?token=${invitation.token}`;
-          console.log("[OAuth Callback] Redirecting to accept invitation");
-        } else {
-          // No invitation, redirect to create organization
-          redirectTo = "/onboarding/create-organization";
-          console.log("[OAuth Callback] Redirecting to create organization");
-        }
+        // Redirect to create organization
+        redirectTo = "/onboarding/create-organization";
+        console.log("[OAuth Callback] Redirecting to create organization");
       } else {
         // User has organization, redirect to dashboard
         redirectTo = next;

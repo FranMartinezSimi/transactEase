@@ -20,7 +20,6 @@ export {
   getSession,
   getUser,
   isAuthenticated,
-  acceptInvitation,
   onAuthStateChange,
   type AuthResponse,
 } from "./services/auth";

@@ -2,7 +2,6 @@
 
 import { useRouter, usePathname } from "next/navigation"
 import { useProfile } from "@features/auth"
-import { useTheme } from "@shared/hooks/useTheme"
 import {
   Sidebar,
   SidebarContent,
@@ -20,24 +19,15 @@ import {
   LayoutDashboard,
   FileCheck,
   LogOut,
-  Moon,
-  Sun,
-  Shield,
   Building2,
   BadgeCheck,
   Send,
-  FileText,
   Users,
   Settings,
-  BarChart3,
-  Clock,
-  Archive,
-  Bell,
   HelpCircle,
   CreditCard,
 } from "lucide-react"
 import { Button } from "@shared/components/ui/button"
-import { Separator } from "@shared/components/ui/separator"
 import { Badge } from "@shared/components/ui/badge"
 import { toast } from "sonner"
 import Logo from "../../../public/Sealdrop.svg";
@@ -47,7 +37,6 @@ export function AppSidebar() {
   const router = useRouter()
   const pathname = usePathname()
   const { profile } = useProfile()
-  const { theme, toggleTheme } = useTheme()
 
   const getRoleBadgeVariant = (role?: string) => {
     switch (role) {
@@ -78,6 +67,7 @@ export function AppSidebar() {
   const isActive = (path: string) => pathname === path
 
   const isAdmin = profile?.role === "admin" || profile?.role === "owner"
+  const isOwner = profile?.role === "owner"
 
   // Main navigation items
   const mainNavItems = [
@@ -90,11 +80,6 @@ export function AppSidebar() {
       title: "Send Delivery",
       icon: Send,
       path: "/delivery",
-    },
-    {
-      title: "My Deliveries",
-      icon: FileText,
-      path: "/deliveries",
     },
   ]
 
@@ -117,7 +102,7 @@ export function AppSidebar() {
     },
   ]
 
-  // Settings navigation items
+  // Settings navigation items (all users)
   const settingsNavItems = [
     {
       title: "Settings",
@@ -128,6 +113,15 @@ export function AppSidebar() {
       title: "Help & Support",
       icon: HelpCircle,
       path: "/help",
+    },
+  ]
+
+  // Owner-only settings items
+  const ownerSettingsNavItems = [
+    {
+      title: "Subscription",
+      icon: CreditCard,
+      path: "/subscription",
     },
   ]
 
@@ -231,6 +225,18 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {settingsNavItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton
+                    isActive={isActive(item.path)}
+                    onClick={() => router.push(item.path)}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+              {/* Owner-only settings */}
+              {isOwner && ownerSettingsNavItems.map((item) => (
                 <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton
                     isActive={isActive(item.path)}

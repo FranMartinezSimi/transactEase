@@ -46,12 +46,13 @@ export function middleware(request: NextRequest) {
   else if (pathname.startsWith("/delivery")) {
     response = NextResponse.next();
   }
-  // Permitir rutas protegidas (dashboard, onboarding, send, audit)
+  // Permitir rutas protegidas (dashboard, onboarding, send, audit, settings)
   else if (
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/onboarding") ||
     pathname.startsWith("/send") ||
-    pathname.startsWith("/audit")
+    pathname.startsWith("/audit") ||
+    pathname.startsWith("/settings")
   ) {
     response = NextResponse.next();
   }

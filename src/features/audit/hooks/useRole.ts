@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@shared/lib/supabase/client";
 
 export type UserRole = "owner" | "admin" | "member";
 
@@ -40,7 +40,9 @@ export function useRole() {
       setLoading(true);
       const supabase = createClient();
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         setRole(null);
         setLoading(false);
