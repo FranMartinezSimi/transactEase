@@ -30,20 +30,21 @@ export default function DashboardPage() {
       const supabase = createClient()
 
       // Check if user is authenticated
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      const { data, error: sessionError } = await supabase.auth.getUser()
+      const user = data?.user
 
-      if (sessionError || !session) {
-        console.log("[Dashboard] No session found, redirecting to login")
+      if (sessionError || !user) {
+        console.log("[Dashboard] No user found, redirecting to login")
         router.push("/auth/login")
         return
       }
 
       // Get user profile
       const { data: profileData, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single()
+      .from("profiles")
+      .select("*")
+      .eq("id", user.id)
+      .single()
 
       if (profileError) {
         console.error("[Dashboard] Profile error:", profileError)
