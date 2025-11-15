@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import type { AuditLog } from "@/hooks/useAuditLogs";
+import type { AuditLog } from "../hooks/useAuditLogs";
 
 /**
  * Export audit logs to CSV format

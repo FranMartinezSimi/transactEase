@@ -1,14 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createServerClient, sendDeliveryNotification } from "@shared";
+import { createClient } from "@shared/lib/supabase/server";
+import { sendDeliveryNotification } from "@shared/lib/email/send-delivery-notification";
 
 /**
  * Revoke a delivery (mark as revoked)
  */
+
 export async function revokeDelivery(deliveryId: string) {
   try {
-    const supabase = await createServerClient();
+    const supabase = await createClient();
 
     // Get delivery details first
     const { data: delivery, error: fetchError } = await supabase
@@ -30,7 +32,7 @@ export async function revokeDelivery(deliveryId: string) {
       .from("deliveries")
       .update({
         status: "revoked",
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq("id", deliveryId);
 
@@ -54,10 +56,12 @@ export async function revokeDelivery(deliveryId: string) {
  */
 export async function deleteDelivery(deliveryId: string) {
   try {
-    const supabase = await createServerClient();
+    const supabase = await createClient();
 
     // Verify user has permission (must be sender or admin)
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return { success: false, error: "Unauthorized" };
@@ -85,7 +89,10 @@ export async function deleteDelivery(deliveryId: string) {
     const isAdmin = profile?.role === "admin" || profile?.role === "owner";
 
     if (!isOwner && !isAdmin) {
-      return { success: false, error: "You don't have permission to delete this delivery" };
+      return {
+        success: false,
+        error: "You don't have permission to delete this delivery",
+      };
     }
 
     // Delete delivery files first (FK constraint)
@@ -125,22 +132,30 @@ export async function deleteDelivery(deliveryId: string) {
  */
 export async function resendDeliveryNotification(deliveryId: string) {
   try {
-    const supabase = await createServerClient();
+    const supabase = await createClient();
 
     // Get delivery details
     const { data: delivery, error: fetchError } = await supabase
       .from("deliveries")
-      .select(`
+      .select(
+        `
         id,
         title,
         message,
         recipient_email,
         status,
+        expires_at,
+        max_views,
+        max_downloads,
         sender:profiles!deliveries_sender_id_fkey (
           full_name,
           email
+        ),
+        files:delivery_files (
+          id
         )
-      `)
+      `
+      )
       .eq("id", deliveryId)
       .single();
 
@@ -149,7 +164,10 @@ export async function resendDeliveryNotification(deliveryId: string) {
     }
 
     if (delivery.status !== "active") {
-      return { success: false, error: "Can only resend notifications for active deliveries" };
+      return {
+        success: false,
+        error: "Can only resend notifications for active deliveries",
+      };
     }
 
     // Get delivery link
@@ -160,8 +178,12 @@ export async function resendDeliveryNotification(deliveryId: string) {
     try {
       await sendDeliveryNotification({
         recipientEmail: delivery.recipient_email,
-        senderName: delivery.sender?.full_name || "Someone",
-        senderEmail: delivery.sender?.email || "unknown",
+        senderEmail: delivery.sender[0]?.email || "unknown",
+        deliveryId: delivery.id,
+        expiresAt: delivery.expires_at,
+        maxViews: delivery.max_views,
+        maxDownloads: delivery.max_downloads,
+        fileCount: Array.isArray(delivery.files) ? delivery.files.length : 0,
         deliveryTitle: delivery.title,
         deliveryMessage: delivery.message,
         deliveryLink,

@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
 
     console.log("[API] Email domain extracted:", emailDomain);
 
-    /*
+    // Get organization domain
     const { data: org, error: orgError } = await supabase
       .from("organizations")
       .select("domain, name")
@@ -194,19 +194,24 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("[API] Organization domain:", org.domain);
-    
-    // Validate email domain matches organization domain
+
+    // Validate email domain matches organization domain (only if domain is set)
     if (org.domain && emailDomain !== org.domain) {
-      console.error("[API] Email domain mismatch. Expected:", org.domain, "Got:", emailDomain);
+      console.error(
+        "[API] Email domain mismatch. Expected:",
+        org.domain,
+        "Got:",
+        emailDomain
+      );
       return NextResponse.json(
         {
           success: false,
-          error: `Email domain must match organization domain (@${org.domain})`
+          error: `Email domain must match organization domain (@${org.domain})`,
         },
         { status: 400 }
       );
     }
-    */
+
     // Check if user already exists with this email
     console.log("[API] Checking if user exists:", emailLower);
     const { data: existingUser, error: checkError } = await supabase

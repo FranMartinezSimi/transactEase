@@ -22,7 +22,7 @@ async function requestAccessHandler(
     });
 
     if (!validation.success) {
-      const errors = validation.error.errors.map((err) => ({
+      const errors = validation.error.issues.map((err) => ({
         field: err.path.join("."),
         message: err.message,
       }));

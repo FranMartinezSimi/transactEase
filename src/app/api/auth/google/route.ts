@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { createClient } from '@shared/lib/supabase/server';
+import { NextResponse } from 'next/server';
 
 /**
  * Google OAuth API Route

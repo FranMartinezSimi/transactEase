@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
-import { loginSchema } from '@/lib/validations/auth'
+import { createClient } from '@shared/lib/supabase/server';
+import { NextResponse } from 'next/server';
+import { loginSchema } from '@features/auth/utils/auth';
 
 /**
  * Email/Password Login API Route
