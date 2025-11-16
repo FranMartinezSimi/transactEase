@@ -85,10 +85,6 @@ export default function LandingPage() {
                   <Shield className="h-4 w-4" />
                   CCPA Aligned
                 </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary text-sm font-semibold">
-                  <Globe className="h-4 w-4" />
-                  Chile Ley 19.628
-                </div>
               </div>
 
               {/* Trust Indicators */}
