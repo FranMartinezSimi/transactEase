@@ -45,10 +45,20 @@ interface OrganizationMember {
   created_at: string
 }
 
+interface PendingInvitation {
+  id: string
+  email: string
+  full_name: string | null
+  role: "admin" | "member"
+  invited_at: string
+  invited_by: string
+}
+
 export default function UsersPage() {
   const router = useRouter()
   const { profile, loading: profileLoading } = useProfile()
   const [members, setMembers] = useState<OrganizationMember[]>([])
+  const [pendingInvitations, setPendingInvitations] = useState<PendingInvitation[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -63,6 +73,7 @@ export default function UsersPage() {
   useEffect(() => {
     if (!profileLoading && profile) {
       fetchMembers()
+      fetchPendingInvitations()
     }
   }, [profileLoading, profile])
 
@@ -87,6 +98,47 @@ export default function UsersPage() {
       toast.error("An error occurred while loading members")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchPendingInvitations = async () => {
+    try {
+      console.log("[Users] Fetching pending invitations...")
+      const response = await fetch("/api/organization/invitations")
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        console.log("[Users] Invitations loaded successfully:", data.invitations.length)
+        setPendingInvitations(data.invitations)
+      } else {
+        console.error("[Users] Failed to load invitations:", data.error)
+      }
+    } catch (error) {
+      console.error("[Users] Error fetching invitations:", error)
+    }
+  }
+
+  const handleCancelInvitation = async (invitationId: string, email: string) => {
+    if (!confirm(`Are you sure you want to cancel the invitation for ${email}?`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/organization/invitations/${invitationId}`, {
+        method: "DELETE",
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        toast.success("Invitation cancelled successfully")
+        fetchPendingInvitations()
+      } else {
+        toast.error(data.error || "Failed to cancel invitation")
+      }
+    } catch (error) {
+      console.error("[Users] Error cancelling invitation:", error)
+      toast.error("An error occurred while cancelling invitation")
     }
   }
 
@@ -129,6 +181,7 @@ export default function UsersPage() {
         setNewUserName("")
         setNewUserRole("member")
         fetchMembers()
+        fetchPendingInvitations()
       } else {
         console.error("[Users] Failed to add user:", data.error)
         toast.error(data.error || "Failed to add user")
@@ -346,6 +399,41 @@ export default function UsersPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Pending Invitations Section */}
+            {pendingInvitations.length > 0 && (
+              <div className="mb-6 p-4 bg-muted/50 rounded-lg border border-border">
+                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Badge variant="secondary">{pendingInvitations.length}</Badge>
+                  Pending Invitations
+                </h4>
+                <div className="space-y-2">
+                  {pendingInvitations.map((invitation) => (
+                    <div
+                      key={invitation.id}
+                      className="flex items-center justify-between p-3 bg-background rounded-md border border-border"
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{invitation.email}</p>
+                        {invitation.full_name && (
+                          <p className="text-xs text-muted-foreground">{invitation.full_name}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="outline">{invitation.role}</Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleCancelInvitation(invitation.id, invitation.email)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Search */}
             <div className="mb-4">
               <div className="relative">

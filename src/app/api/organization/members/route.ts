@@ -149,16 +149,16 @@ export async function POST(req: NextRequest) {
     console.log("[API] Request body:", { email, role, full_name });
 
     if (!email || !role) {
-      console.error("[API] Missing required fields");
+      console.error("[API] Missing required fields in request body");
       return NextResponse.json(
-        { success: false, error: "Email and role are required" },
+        { success: false, error: "Missing required fields: email, role" },
         { status: 400 }
       );
     }
 
     // Validate role
     if (!["admin", "member"].includes(role)) {
-      console.error("[API] Invalid role:", role);
+      console.error("[API] Invalid role provided:", role);
       return NextResponse.json(
         { success: false, error: "Invalid role. Must be 'admin' or 'member'" },
         { status: 400 }
@@ -267,14 +267,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // User doesn't exist yet - they will be auto-assigned when they log in via SSO
+    // User doesn't exist yet - create a pending invitation
     console.log(
-      "[API] User doesn't exist yet - they will be auto-assigned on SSO login"
+      "[API] User doesn't exist yet - creating pending invitation"
     );
 
-    // TODO: Store the pre-assigned role somewhere so when they login they get this specific role
-    // For now, they'll get the default "member" role via the trigger
-    // Future enhancement: Store email -> role mapping in organizations table
+    // Create invitation record
+    const { data: invitation, error: invitationError } = await supabase
+      .from("organization_invitations")
+      .insert({
+        organization_id: profile.organization_id,
+        email: emailLower,
+        full_name: full_name || null,
+        role: role,
+        invited_by: user.id,
+      })
+      .select()
+      .single();
+
+    if (invitationError) {
+      console.error("[API] Error creating invitation:", invitationError);
+
+      // Check if it's a duplicate invitation
+      if (invitationError.code === "23505") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "An invitation already exists for this email",
+          },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json(
+        { success: false, error: "Failed to create invitation" },
+        { status: 500 }
+      );
+    }
+
+    console.log("[API] Invitation created successfully:", invitation.id);
 
     // TODO: Send notification email
     // await sendNotificationEmail(emailLower, full_name, org.name);
@@ -282,7 +313,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: `${emailLower} has been registered. They will be automatically added to your organization when they sign in with SSO.`,
+        message: `Invitation sent to ${emailLower}. They will be automatically added to your organization when they sign in with SSO.`,
         requiresRegistration: true,
       },
       { status: 200 }
