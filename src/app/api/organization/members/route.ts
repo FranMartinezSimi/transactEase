@@ -1,4 +1,5 @@
 import { createClient } from "@shared/lib/supabase/server";
+import { sendUserInvitation } from "@shared/lib/email/send-user-invitation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
     // Get user's profile and organization
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("organization_id, role")
+      .select("organization_id, role, email, full_name")
       .eq("id", user.id)
       .single();
 
@@ -116,7 +117,7 @@ export async function POST(req: NextRequest) {
     // Get user's profile and organization
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("organization_id, role")
+      .select("organization_id, role, email, full_name")
       .eq("id", user.id)
       .single();
 
@@ -216,7 +217,7 @@ export async function POST(req: NextRequest) {
     console.log("[API] Checking if user exists:", emailLower);
     const { data: existingUser, error: checkError } = await supabase
       .from("profiles")
-      .select("id, organization_id, email")
+      .select("id, organization_id, email, full_name")
       .eq("email", emailLower)
       .single();
 
@@ -258,6 +259,23 @@ export async function POST(req: NextRequest) {
       }
 
       console.log("[API] User added to organization successfully");
+
+      // Send notification email
+      try {
+        await sendUserInvitation({
+          invitedEmail: emailLower,
+          invitedName: full_name || existingUser.full_name,
+          organizationName: org.name,
+          invitedByName: profile.full_name,
+          invitedByEmail: profile.email,
+          role: role,
+        });
+        console.log("[API] Invitation email sent successfully");
+      } catch (emailError) {
+        console.error("[API] Failed to send invitation email:", emailError);
+        // Don't fail the request if email fails
+      }
+
       return NextResponse.json(
         {
           success: true,
@@ -306,8 +324,21 @@ export async function POST(req: NextRequest) {
 
     console.log("[API] Invitation created successfully:", invitation.id);
 
-    // TODO: Send notification email
-    // await sendNotificationEmail(emailLower, full_name, org.name);
+    // Send notification email
+    try {
+      await sendUserInvitation({
+        invitedEmail: emailLower,
+        invitedName: full_name,
+        organizationName: org.name,
+        invitedByName: profile.full_name,
+        invitedByEmail: profile.email,
+        role: role,
+      });
+      console.log("[API] Invitation email sent successfully");
+    } catch (emailError) {
+      console.error("[API] Failed to send invitation email:", emailError);
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json(
       {

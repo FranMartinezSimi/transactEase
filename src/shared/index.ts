@@ -25,6 +25,7 @@ export { createClient } from "./lib/supabase/client";
 export { createClient as createServerClient } from "./lib/supabase/server";
 export { sendDeliveryNotification } from "./lib/email/send-delivery-notification";
 export { sendAccessCode } from "./lib/email/send-access-code";
+export { sendUserInvitation } from "./lib/email/send-user-invitation";
 export { logger } from "./lib/logger";
 // export { analytics } from "./lib/analytics"; // TODO: Fix analytics export
 
