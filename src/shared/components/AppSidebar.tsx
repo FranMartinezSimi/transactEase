@@ -145,26 +145,26 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border p-4 space-y-3">
+      <SidebarHeader className="border-b border-sidebar-border p-4 space-y-3 overflow-hidden">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <Image src={Logo} alt="Sealdrop Logo" className="h-16 w-16" />
-          <span className="text-lg font-bold">Sealdrop</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <Image src={Logo} alt="Sealdrop Logo" className="h-16 w-16 flex-shrink-0" />
+          <span className="text-lg font-bold truncate">Sealdrop</span>
         </div>
 
         {/* Organization & Role */}
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2 text-sm">
-            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-medium truncate">
+        <div className="space-y-1.5 min-w-0">
+          <div className="flex items-center gap-2 text-sm min-w-0">
+            <Building2 className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+            <span className="font-medium truncate min-w-0">
               {profile?.organization?.name || "No organization"}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <BadgeCheck className="h-3.5 w-3.5 text-muted-foreground" />
+          <div className="flex items-center gap-2 min-w-0">
+            <BadgeCheck className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
             <Badge
               variant={getRoleBadgeVariant(profile?.role)}
-              className="text-xs"
+              className="text-xs truncate"
             >
               {getRoleLabel(profile?.role)}
             </Badge>
@@ -172,7 +172,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="flex-1 overflow-y-auto overflow-x-hidden">
         {/* Main Navigation */}
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
@@ -183,9 +183,10 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={isActive(item.path)}
                     onClick={() => router.push(item.path)}
+                    className="min-w-0"
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -206,9 +207,10 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         isActive={isActive(item.path)}
                         onClick={() => router.push(item.path)}
+                        className="min-w-0"
                       >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span className="truncate">{item.title}</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -229,9 +231,10 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={isActive(item.path)}
                     onClick={() => router.push(item.path)}
+                    className="min-w-0"
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -241,9 +244,10 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={isActive(item.path)}
                     onClick={() => router.push(item.path)}
+                    className="min-w-0"
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -252,23 +256,23 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
+      <SidebarFooter className="border-t border-sidebar-border p-4 overflow-hidden">
 
-          {/* User Info */}
-          <div className="px-2 py-1 text-xs text-muted-foreground truncate">
-            {profile?.email}
-          </div>
+        {/* User Info */}
+        <div className="px-2 py-1 text-xs text-muted-foreground truncate min-w-0 overflow-hidden">
+          {profile?.email}
+        </div>
 
-          {/* Sign Out */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSignOut}
-            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Sign Out
-          </Button>
+        {/* Sign Out */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSignOut}
+          className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10 min-w-0"
+        >
+          <LogOut className="h-4 w-4 mr-2 flex-shrink-0" />
+          <span className="truncate">Sign Out</span>
+        </Button>
 
       </SidebarFooter>
     </Sidebar>
