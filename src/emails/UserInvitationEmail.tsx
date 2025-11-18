@@ -19,17 +19,17 @@ interface UserInvitationEmailProps {
   invitedByName: string;
   invitedByEmail: string;
   role: "admin" | "member";
-  loginLink?: string;
+  loginLink: string;
 }
 
 export const UserInvitationEmail = ({
-  invitedEmail = "newuser@example.com",
+  invitedEmail,
   invitedName,
-  organizationName = "ACME Corp",
-  invitedByName = "John Doe",
-  invitedByEmail = "john@example.com",
-  role = "member",
-  loginLink = "https://sealdrop.com/login",
+  organizationName,
+  invitedByName,
+  invitedByEmail,
+  role,
+  loginLink,
 }: UserInvitationEmailProps) => {
   const displayName = invitedName || invitedEmail.split("@")[0];
   const roleDisplay = role === "admin" ? "Administrator" : "Member";

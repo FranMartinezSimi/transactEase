@@ -30,7 +30,7 @@ export async function sendUserInvitation({
     // Use provided loginLink or build it
     const finalLoginLink =
       loginLink ||
-      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/login`;
+      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/auth/login`;
 
     const emailLog = log.child({
       operation: "sendUserInvitation",
