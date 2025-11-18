@@ -7,10 +7,10 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { invitationId: string } }
+  { params }: { params: Promise<{ invitationId: string }> }
 ) {
   try {
-    const { invitationId } = params;
+    const { invitationId } = await params;
     console.log(
       "[API] DELETE /api/organization/invitations/[invitationId] - Invitation ID:",
       invitationId

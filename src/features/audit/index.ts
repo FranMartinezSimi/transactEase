@@ -18,6 +18,7 @@ export { useRole } from "./hooks/useRole";
 
 // Components
 export { CompliancePanel } from "./components/CompliancePanel";
+export { ComplianceDashboard } from "./components/ComplianceDashboard";
 export { ForensicMonitoring } from "./components/ForensicMonitoring";
 
 // Utils

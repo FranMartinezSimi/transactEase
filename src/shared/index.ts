@@ -13,10 +13,10 @@ export { AuthenticatedLayout } from "./components/AuthenticatedLayout";
 export { AppSidebar } from "./components/AppSidebar";
 export { ReactQueryProvider } from "./components/ReactQueryProvider";
 export { LocationPermission } from "./components/LocationPermission";
-export * from "./components/ui";
+// export * from "./components/ui"; // TODO: Create index file
 
 // Hooks
-export { useMobile } from "./hooks/use-mobile";
+export { useIsMobile } from "./hooks/use-mobile";
 export { useTheme } from "./hooks/useTheme";
 export { useLocation } from "./hooks/useLocation";
 
@@ -26,7 +26,7 @@ export { createClient as createServerClient } from "./lib/supabase/server";
 export { sendDeliveryNotification } from "./lib/email/send-delivery-notification";
 export { sendAccessCode } from "./lib/email/send-access-code";
 export { logger } from "./lib/logger";
-export { analytics } from "./lib/analytics";
+// export { analytics } from "./lib/analytics"; // TODO: Fix analytics export
 
 // Utils
 export { cn } from "./utils/utils";

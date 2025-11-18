@@ -288,7 +288,6 @@ export async function POST(req: NextRequest) {
     if (invitationError) {
       console.error("[API] Error creating invitation:", invitationError);
 
-      // Check if it's a duplicate invitation
       if (invitationError.code === "23505") {
         return NextResponse.json(
           {

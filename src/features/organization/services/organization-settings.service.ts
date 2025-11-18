@@ -269,7 +269,7 @@ export class OrganizationSettingsService {
 
     // Check monthly limit if set
     if (settings.aiMaxScansPerMonth !== null) {
-      const { data, error } = await this.supabase
+      const { data, error, count } = await this.supabase
         .from("compliance_scans")
         .select("id", { count: "exact", head: true })
         .eq("organization_id", organizationId)
@@ -283,7 +283,7 @@ export class OrganizationSettingsService {
         return false;
       }
 
-      const scanCount = data || 0;
+      const scanCount = count || 0;
       if (scanCount >= settings.aiMaxScansPerMonth) {
         logger.warn(
           { organizationId, scanCount, limit: settings.aiMaxScansPerMonth },

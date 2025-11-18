@@ -25,7 +25,7 @@ import {
 import { Calendar } from "@shared/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@shared/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/components/ui/tabs";
-import { useRole, useAuditLogs, exportAuditLogsToCSV, CompliancePanel, ForensicMonitoring } from "@features/audit";
+import { useRole, useAuditLogs, exportAuditLogsToCSV, CompliancePanel, ComplianceDashboard, ForensicMonitoring } from "@features/audit";
 import { toast } from "sonner";
 import {
   Shield,
@@ -654,7 +654,7 @@ export default function Audit() {
           </TabsContent>
 
           <TabsContent value="compliance" className="space-y-6">
-            <CompliancePanel />
+            <ComplianceDashboard />
           </TabsContent>
 
           <TabsContent value="forensic" className="space-y-6">
