@@ -79,11 +79,11 @@ export async function POST(req: NextRequest) {
     const metricsData = await metricsResponse.json();
     const metrics = metricsData.metrics;
 
-    // Fetch recent audit logs for the report
-    let auditLogsQuery = supabase
-      .from("audit_logs")
-      .select("*, deliveries(title, recipient_email)")
-      .order("created_at", { ascending: false })
+    // Fetch recent access logs for the report
+    let accessLogsQuery = supabase
+      .from("access_logs")
+      .select("*")
+      .order("timestamp", { ascending: false })
       .limit(50);
 
     if (!isAdmin) {
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
 
       const deliveryIds = userDeliveries?.map((d) => d.id) || [];
       if (deliveryIds.length > 0) {
-        auditLogsQuery = auditLogsQuery.in("delivery_id", deliveryIds);
+        accessLogsQuery = accessLogsQuery.in("delivery_id", deliveryIds);
       }
     } else {
       // Get org delivery IDs
@@ -106,18 +106,18 @@ export async function POST(req: NextRequest) {
 
       const deliveryIds = orgDeliveries?.map((d) => d.id) || [];
       if (deliveryIds.length > 0) {
-        auditLogsQuery = auditLogsQuery.in("delivery_id", deliveryIds);
+        accessLogsQuery = accessLogsQuery.in("delivery_id", deliveryIds);
       }
     }
 
-    const { data: auditLogs } = await auditLogsQuery;
+    const { data: accessLogs } = await accessLogsQuery;
 
     // Generate PDF
     const pdf = generateCompliancePDF({
       organization,
       generatedBy: profile.full_name || profile.email,
       metrics,
-      auditLogs: auditLogs || [],
+      accessLogs: accessLogs || [],
     });
 
     // Convert PDF to buffer
@@ -144,9 +144,9 @@ function generateCompliancePDF(data: {
   organization: { name: string; domain: string | null };
   generatedBy: string;
   metrics: any;
-  auditLogs: any[];
+  accessLogs: any[];
 }) {
-  const { organization, generatedBy, metrics, auditLogs } = data;
+  const { organization, generatedBy, metrics, accessLogs } = data;
   const doc = new jsPDF();
 
   // Header
@@ -297,10 +297,10 @@ function generateCompliancePDF(data: {
   doc.text("Recent Audit Events (Last 50)", 20, yPos);
   yPos += 5;
 
-  const auditTableData = auditLogs.slice(0, 50).map((log) => [
-    format(new Date(log.created_at), "yyyy-MM-dd HH:mm"),
+  const auditTableData = accessLogs.slice(0, 50).map((log) => [
+    format(new Date(log.timestamp), "yyyy-MM-dd HH:mm"),
     log.action.replace("_", " ").toUpperCase(),
-    log.deliveries?.title || "N/A",
+    "N/A", // We don't have delivery title in access_logs
     log.status === "success" ? "✓" : "✗",
     log.ip || "N/A",
   ]);

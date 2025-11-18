@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     // Build query based on role
     let deliveriesQuery = supabase
       .from("deliveries")
-      .select("*, audit_logs(*)");
+      .select("*");
 
     if (isAdmin) {
       // Admin sees all org deliveries
@@ -72,17 +72,17 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Fetch audit logs with proper filtering
-    let auditLogsQuery = supabase
-      .from("audit_logs")
+    // Fetch access logs with proper filtering
+    let accessLogsQuery = supabase
+      .from("access_logs")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("timestamp", { ascending: false });
 
     if (!isAdmin) {
       // Regular users only see logs for their deliveries
       const userDeliveryIds = deliveries?.map((d) => d.id) || [];
       if (userDeliveryIds.length > 0) {
-        auditLogsQuery = auditLogsQuery.in("delivery_id", userDeliveryIds);
+        accessLogsQuery = accessLogsQuery.in("delivery_id", userDeliveryIds);
       } else {
         // No deliveries = no logs
         return NextResponse.json({
@@ -94,21 +94,21 @@ export async function GET(req: NextRequest) {
       // Admin sees all logs for org deliveries
       const orgDeliveryIds = deliveries?.map((d) => d.id) || [];
       if (orgDeliveryIds.length > 0) {
-        auditLogsQuery = auditLogsQuery.in("delivery_id", orgDeliveryIds);
+        accessLogsQuery = accessLogsQuery.in("delivery_id", orgDeliveryIds);
       }
     }
 
-    const { data: auditLogs, error: logsError } = await auditLogsQuery;
+    const { data: accessLogs, error: logsError } = await accessLogsQuery;
 
     if (logsError) {
-      console.error("[API] Error fetching audit logs:", logsError);
+      console.error("[API] Error fetching access logs:", logsError);
       return NextResponse.json(
-        { success: false, error: "Failed to fetch audit logs" },
+        { success: false, error: "Failed to fetch access logs" },
         { status: 500 }
       );
     }
 
-    const logs = auditLogs || [];
+    const logs = accessLogs || [];
 
     // Calculate metrics
     const totalDeliveries = deliveries?.length || 0;
@@ -123,10 +123,10 @@ export async function GET(req: NextRequest) {
 
     // Time-based metrics
     const currentMonthLogs = logs.filter(
-      (l) => new Date(l.created_at) >= currentMonthStart && new Date(l.created_at) <= currentMonthEnd
+      (l) => new Date(l.timestamp) >= currentMonthStart && new Date(l.timestamp) <= currentMonthEnd
     );
     const lastMonthLogs = logs.filter(
-      (l) => new Date(l.created_at) >= lastMonthStart && new Date(l.created_at) <= lastMonthEnd
+      (l) => new Date(l.timestamp) >= lastMonthStart && new Date(l.timestamp) <= lastMonthEnd
     );
 
     // Geographic distribution
@@ -174,7 +174,7 @@ export async function GET(req: NextRequest) {
       const monthStart = startOfMonth(subMonths(now, i));
       const monthEnd = endOfMonth(subMonths(now, i));
       const monthLogs = logs.filter(
-        (l) => new Date(l.created_at) >= monthStart && new Date(l.created_at) <= monthEnd
+        (l) => new Date(l.timestamp) >= monthStart && new Date(l.timestamp) <= monthEnd
       );
       monthlyTrend.push({
         month: format(monthStart, "MMM yyyy"),
