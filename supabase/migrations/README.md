@@ -96,10 +96,55 @@ ALTER TABLE public.profiles
   CHECK (role IN ('admin', 'member'));
 ```
 
+## Migración 009: Early Adopter Program
+
+**Archivo:** `009_early_adopter_program.sql`
+
+**Qué hace:**
+
+- ✅ Agrega columnas `is_early_adopter` y `early_adopter_joined_at` a tabla `organizations`
+- ✅ Crea tabla `early_adopter_config` para gestionar slots limitados (default: 50 slots)
+- ✅ Crea función `check_early_adopter_availability()` para verificar disponibilidad
+- ✅ Crea función `claim_early_adopter_slot(org_id)` para reclamar slots atómicamente
+- ✅ Configura RLS policies para early_adopter_config
+- ✅ Crea índice en `is_early_adopter` para performance
+
+**Configuración:**
+- Por defecto: 50 slots de early adopter disponibles
+- Plan free permanente para early adopters
+- Sistema atómico previene race conditions
+
+**Seguro de aplicar:** ✅ Sí
+- No elimina datos
+- No modifica datos existentes
+- Solo agrega columnas, tablas y funciones nuevas
+- Compatible con organizaciones existentes
+
+**Para aplicar:**
+1. Ve a Supabase Dashboard → SQL Editor
+2. Copia el contenido completo de `009_early_adopter_program.sql`
+3. Pega en el editor y ejecuta (Run)
+4. Verifica que se creó la tabla `early_adopter_config`
+
+**Verificación:**
+```sql
+-- Verificar configuración de early adopter
+SELECT * FROM early_adopter_config;
+
+-- Verificar columnas agregadas a organizations
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'organizations'
+AND column_name IN ('is_early_adopter', 'early_adopter_joined_at');
+
+-- Probar función de disponibilidad
+SELECT * FROM check_early_adopter_availability();
+```
+
 ## Próximas Migraciones
 
 Futuras migraciones se numerarán secuencialmente:
 
-- `002_*.sql`
-- `003_*.sql`
+- `010_*.sql`
+- `011_*.sql`
 - etc.
