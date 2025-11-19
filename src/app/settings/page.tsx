@@ -29,7 +29,7 @@ import { useProfile } from "@features/auth";
 interface Subscription {
   id: string;
   organization_id: string;
-  plan: "free" | "pro" | "enterprise";
+  plan: "starter" | "pro" | "enterprise";
   status: string;
   max_deliveries_per_month: number;
   max_storage_gb: number;
@@ -45,55 +45,59 @@ interface Subscription {
 }
 
 const PLAN_FEATURES = {
-  free: {
-    name: "Free",
-    price: "$0",
+  starter: {
+    name: "Starter",
+    price: "$15",
     description: "Para empezar",
     icon: FileText,
-    color: "text-gray-500",
+    color: "text-green-500",
     features: [
-      "10 envíos por mes",
-      "1GB de almacenamiento",
-      "Hasta 3 usuarios",
-      "Archivos hasta 10MB",
+      "3 usuarios incluidos",
+      "50 envíos por mes",
+      "5GB de almacenamiento",
+      "Archivos hasta 25MB",
       "Expiración automática",
       "Código de acceso 2FA",
+      "Usuarios adicionales: $7/mes",
+      "Trial 14 días gratis",
     ],
   },
   pro: {
-    name: "Pro",
-    price: "$29",
-    description: "Para equipos pequeños",
+    name: "Professional",
+    price: "$59",
+    description: "Para equipos profesionales",
     icon: Zap,
     color: "text-blue-500",
     features: [
-      "100 envíos por mes",
-      "10GB de almacenamiento",
-      "Hasta 10 usuarios",
-      "Archivos hasta 50MB",
-      "Todo de Free, más:",
+      "5 usuarios incluidos",
+      "200 envíos por mes",
+      "20GB de almacenamiento",
+      "Archivos hasta 100MB",
+      "Todo de Starter, más:",
       "Compliance AI básico",
       "Reportes de auditoría",
-      "Soporte por email",
+      "Usuarios adicionales: $12/mes",
+      "Soporte prioritario",
     ],
   },
   enterprise: {
     name: "Enterprise",
     price: "Custom",
-    description: "Para organizaciones",
+    description: "Para grandes organizaciones",
     icon: Crown,
     color: "text-purple-500",
     features: [
+      "Usuarios ilimitados",
       "Envíos ilimitados",
       "Almacenamiento ilimitado",
-      "Usuarios ilimitados",
       "Archivos hasta 500MB",
-      "Todo de Pro, más:",
+      "Todo de Professional, más:",
       "Compliance AI avanzado",
       "SSO personalizado",
-      "Soporte prioritario 24/7",
-      "SLA garantizado",
-      "Auditoría completa",
+      "Soporte 24/7 dedicado",
+      "SLA garantizado 99.9%",
+      "Account Manager",
+      "Onboarding personalizado",
     ],
   },
 };
