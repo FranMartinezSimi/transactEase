@@ -27,9 +27,9 @@ import { toast } from "sonner";
 import { useProfile } from "@features/auth";
 
 interface Subscription {
-  id: string;
-  organization_id: string;
-  plan: "starter" | "pro" | "enterprise";
+  id?: string;
+  organization_id?: string;
+  plan: "free" | "starter" | "pro" | "enterprise";
   status: string;
   max_deliveries_per_month: number;
   max_storage_gb: number;
@@ -45,6 +45,20 @@ interface Subscription {
 }
 
 const PLAN_FEATURES = {
+  free: {
+    name: "Free",
+    price: "$0",
+    description: "Plan gratuito (legacy)",
+    icon: FileText,
+    color: "text-gray-500",
+    features: [
+      "1 usuario",
+      "10 envíos por mes",
+      "1GB de almacenamiento",
+      "Archivos hasta 10MB",
+      "Funciones básicas",
+    ],
+  },
   starter: {
     name: "Starter",
     price: "$15",
@@ -151,7 +165,7 @@ export default function SettingsPage() {
     );
   }
 
-  const currentPlan = PLAN_FEATURES[subscription.plan];
+  const currentPlan = PLAN_FEATURES[subscription.plan as keyof typeof PLAN_FEATURES] || PLAN_FEATURES.starter;
   const deliveriesPercent =
     (subscription.deliveries_this_month / subscription.max_deliveries_per_month) * 100;
   const storagePercent = (subscription.storage_used_gb / subscription.max_storage_gb) * 100;
@@ -261,6 +275,25 @@ export default function SettingsPage() {
           </Card>
         </div>
 
+        {/* Legacy Free Plan Notice */}
+        {subscription.plan === "free" && (
+          <Card className="border-2 border-orange-500/50 bg-orange-50 dark:bg-orange-950/20">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <Sparkles className="h-6 w-6 text-orange-500 flex-shrink-0 mt-1" />
+                <div>
+                  <h3 className="text-lg font-bold text-foreground mb-2">
+                    Actualiza tu plan para más funcionalidades
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Estás en el plan gratuito legacy. Actualiza para obtener más envíos, almacenamiento y funciones avanzadas.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Pricing Cards */}
         {isAdmin && (
           <>
@@ -272,7 +305,9 @@ export default function SettingsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {Object.entries(PLAN_FEATURES).map(([planKey, plan]) => {
+              {Object.entries(PLAN_FEATURES)
+                .filter(([planKey]) => planKey !== "free") // Exclude legacy free plan
+                .map(([planKey, plan]) => {
                 const isCurrent = planKey === subscription.plan;
                 const PlanIcon = plan.icon;
 
