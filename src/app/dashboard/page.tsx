@@ -1,12 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@shared/lib/supabase/client"
 import { AuthenticatedLayout } from "@shared/components/AuthenticatedLayout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/components/ui/card"
-import { FileText, Eye, Download, Users, Loader2 } from "lucide-react"
+import { FileText, Eye, Download, Users, Loader2, Search } from "lucide-react"
 import { Badge } from "@shared/components/ui/badge"
+import { Input } from "@shared/components/ui/input"
 import { formatDistanceToNow } from "date-fns"
 import { useProfile } from "@features/auth"
 import { useDeliveries } from "@features/delivery/hooks/useDeliveries"
@@ -17,6 +18,7 @@ import { toast } from "sonner"
 export default function DashboardPage() {
   const router = useRouter()
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
   const { profile, loading: profileLoading } = useProfile()
   const isAdmin = profile?.role === "admin" || profile?.role === "owner"
   const { deliveries, loading: deliveriesLoading, refetch } = useDeliveries(isAdmin)
@@ -29,7 +31,6 @@ export default function DashboardPage() {
     try {
       const supabase = createClient()
 
-      // Check if user is authenticated
       const { data, error: sessionError } = await supabase.auth.getUser()
       const user = data?.user
 
@@ -39,12 +40,11 @@ export default function DashboardPage() {
         return
       }
 
-      // Get user profile
       const { data: profileData, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single()
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single()
 
       if (profileError) {
         console.error("[Dashboard] Profile error:", profileError)
@@ -84,13 +84,28 @@ export default function DashboardPage() {
     )
   }
 
+  // Filter deliveries based on search query
+  const filteredDeliveries = useMemo(() => {
+    if (!searchQuery.trim()) return deliveries
+
+    const query = searchQuery.toLowerCase()
+    return deliveries.filter(
+      (d) =>
+        d.title.toLowerCase().includes(query) ||
+        d.recipient_email.toLowerCase().includes(query) ||
+        (d.created_by_email && d.created_by_email.toLowerCase().includes(query))
+    )
+  }, [deliveries, searchQuery])
+
   const activeDeliveries = deliveries.filter((d) => d.status === "active").length
   const totalViews = deliveries.reduce((sum, d) => sum + d.current_views, 0)
   const totalDownloads = deliveries.reduce((sum, d) => sum + d.current_downloads, 0)
+  const totalExpired = deliveries.filter((d) => d.status === "expired").length
+  const totalRevoked = deliveries.filter((d) => d.status === "revoked").length
 
   return (
     <AuthenticatedLayout>
-      <div>
+      <div className="border-width-2">
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
@@ -99,10 +114,10 @@ export default function DashboardPage() {
                 {isAdmin && (
                   <Badge variant="default" className="flex items-center gap-1">
                     <Users className="h-3 w-3" />
-                    Organizational View
+                    Vista Organizacional
                   </Badge>
                 )}
-                {!isAdmin && <Badge variant="outline">Personal View</Badge>}
+                {!isAdmin && <Badge variant="outline">Vista Personal</Badge>}
               </h2>
               <p className="text-muted-foreground">
                 {isAdmin
@@ -113,63 +128,82 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Envíos Activos</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{activeDeliveries}</div>
-              <p className="text-xs text-muted-foreground">
-                Total of {deliveries.length} deliveries
-              </p>
-            </CardContent>
-          </Card>
+        {/* Sticky Stats Header */}
+        <div className="sticky top-0 z-10 bg-background pb-6 pt-4 border-b mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Envíos Activos</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{activeDeliveries}</div>
+                <p className="text-xs text-muted-foreground">
+                  De {deliveries.length} totales
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Visualizaciones</CardTitle>
-              <Eye className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalViews}</div>
-              <p className="text-xs text-muted-foreground">Total views</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Visualizaciones</CardTitle>
+                <Eye className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalViews}</div>
+                <p className="text-xs text-muted-foreground">Total de vistas</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Descargas</CardTitle>
-              <Download className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalDownloads}</div>
-              <p className="text-xs text-muted-foreground">Total downloads</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Descargas</CardTitle>
+                <Download className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalDownloads}</div>
+                <p className="text-xs text-muted-foreground">Total de descargas</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-foreground">Recent Deliveries</h3>
+        {/* Search and Deliveries List */}
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="text-2xl font-bold text-foreground">Envíos Recientes</h3>
+            <div className="relative w-full max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por título, destinatario o remitente..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">
           {deliveriesLoading ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
-                Loading deliveries...
+                Cargando envíos...
               </CardContent>
             </Card>
-          ) : deliveries.length === 0 ? (
+          ) : filteredDeliveries.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center">
                 <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-muted-foreground mb-4">You have no deliveries yet</p>
+                <p className="text-muted-foreground mb-4">
+                  {searchQuery
+                    ? "No se encontraron envíos con ese criterio de búsqueda"
+                    : "Aún no tienes envíos"}
+                </p>
               </CardContent>
             </Card>
           ) : (
-            deliveries.map((delivery) => (
+            filteredDeliveries.map((delivery) => (
               <Card key={delivery.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -190,15 +224,15 @@ export default function DashboardPage() {
                         delivery.status === "active"
                           ? "default"
                           : delivery.status === "revoked"
-                          ? "destructive"
-                          : "secondary"
+                            ? "destructive"
+                            : "secondary"
                       }
                     >
                       {delivery.status === "active"
                         ? "Active"
                         : delivery.status === "revoked"
-                        ? "Revoked"
-                        : "Expired"}
+                          ? "Revoked"
+                          : "Expired"}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -249,6 +283,6 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
-    </AuthenticatedLayout>
+    </AuthenticatedLayout >
   )
 }
