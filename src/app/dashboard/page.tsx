@@ -23,6 +23,19 @@ export default function DashboardPage() {
   const isAdmin = profile?.role === "admin" || profile?.role === "owner"
   const { deliveries, loading: deliveriesLoading, refetch } = useDeliveries(isAdmin)
 
+  // Filter deliveries based on search query - MUST be before any conditional returns
+  const filteredDeliveries = useMemo(() => {
+    if (!searchQuery.trim()) return deliveries
+
+    const query = searchQuery.toLowerCase()
+    return deliveries.filter(
+      (d) =>
+        d.title.toLowerCase().includes(query) ||
+        d.recipient_email.toLowerCase().includes(query) ||
+        (d.created_by_email && d.created_by_email.toLowerCase().includes(query))
+    )
+  }, [deliveries, searchQuery])
+
   useEffect(() => {
     checkAuth()
   }, [])
@@ -83,19 +96,6 @@ export default function DashboardPage() {
       </div>
     )
   }
-
-  // Filter deliveries based on search query
-  const filteredDeliveries = useMemo(() => {
-    if (!searchQuery.trim()) return deliveries
-
-    const query = searchQuery.toLowerCase()
-    return deliveries.filter(
-      (d) =>
-        d.title.toLowerCase().includes(query) ||
-        d.recipient_email.toLowerCase().includes(query) ||
-        (d.created_by_email && d.created_by_email.toLowerCase().includes(query))
-    )
-  }, [deliveries, searchQuery])
 
   const activeDeliveries = deliveries.filter((d) => d.status === "active").length
   const totalViews = deliveries.reduce((sum, d) => sum + d.current_views, 0)
