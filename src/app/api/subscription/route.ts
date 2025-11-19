@@ -54,19 +54,19 @@ export async function GET(req: NextRequest) {
     if (subError) {
       console.error("[API] Error fetching subscription:", subError);
 
-      // If no subscription exists, return default free plan info
+      // If no subscription exists, return default starter plan info
       if (subError.code === "PGRST116") {
-        console.log("[API] No subscription found, returning default free plan");
+        console.log("[API] No subscription found, returning default starter plan");
         return NextResponse.json(
           {
             success: true,
             subscription: {
-              plan: "free",
-              status: "active",
-              max_deliveries_per_month: 10,
-              max_storage_gb: 1,
+              plan: "starter",
+              status: "trial",
+              max_deliveries_per_month: 50,
+              max_storage_gb: 5,
               max_users: 3,
-              max_file_size: 10,
+              max_file_size: 25,
               ai_compliance_enabled: false,
               deliveries_this_month: 0,
               storage_used_gb: 0,

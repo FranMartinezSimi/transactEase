@@ -172,9 +172,7 @@ export default function SettingsPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div
-                  className={`p-3 rounded-lg bg-${currentPlan.color.replace("text-", "")}/10`}
-                >
+                <div className="p-3 rounded-lg bg-primary/10">
                   <currentPlan.icon className={`h-6 w-6 ${currentPlan.color}`} />
                 </div>
                 <div>
@@ -285,7 +283,7 @@ export default function SettingsPage() {
                   >
                     <CardHeader>
                       <div className="flex items-center justify-between mb-2">
-                        <div className={`p-2 rounded-lg bg-${plan.color.replace("text-", "")}/10`}>
+                        <div className="p-2 rounded-lg bg-primary/10">
                           <PlanIcon className={`h-5 w-5 ${plan.color}`} />
                         </div>
                         {isCurrent && (
