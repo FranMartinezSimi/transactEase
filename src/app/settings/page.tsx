@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useProfile } from "@features/auth";
+import { EarlyAdopterBanner } from "@/shared/components/EarlyAdopterBanner";
 
 interface Subscription {
   id?: string;
@@ -61,7 +62,7 @@ const PLAN_FEATURES = {
   },
   starter: {
     name: "Starter",
-    price: "$15",
+    price: "$25",
     description: "Para empezar",
     icon: FileText,
     color: "text-green-500",
@@ -78,7 +79,7 @@ const PLAN_FEATURES = {
   },
   pro: {
     name: "Professional",
-    price: "$59",
+    price: "$65",
     description: "Para equipos profesionales",
     icon: Zap,
     color: "text-blue-500",
@@ -90,7 +91,7 @@ const PLAN_FEATURES = {
       "Todo de Starter, más:",
       "Compliance AI básico",
       "Reportes de auditoría",
-      "Usuarios adicionales: $12/mes",
+      "Usuarios adicionales: $10/mes",
       "Soporte prioritario",
     ],
   },
@@ -180,6 +181,13 @@ export default function SettingsPage() {
             Gestiona tu plan y monitorea el uso de recursos
           </p>
         </div>
+
+        {/* Early Adopter Banner */}
+        <EarlyAdopterBanner
+          currentPlan={subscription.plan}
+          isAdmin={isAdmin}
+          onSlotClaimed={fetchSubscription}
+        />
 
         {/* Current Plan Card */}
         <Card>
