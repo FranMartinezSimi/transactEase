@@ -189,7 +189,7 @@ export default function LandingPage() {
             <div className="max-w-5xl mx-auto">
               {/* Step 1 */}
               <div className="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center">
                     <Upload className="h-10 w-10 text-primary" />
                   </div>
@@ -210,7 +210,7 @@ export default function LandingPage() {
 
               {/* Step 2 */}
               <div className="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center">
                     <Mail className="h-10 w-10 text-primary" />
                   </div>
@@ -231,7 +231,7 @@ export default function LandingPage() {
 
               {/* Step 3 */}
               <div className="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl gradient-accent flex items-center justify-center">
                     <KeyRound className="h-10 w-10 text-white" />
                   </div>
@@ -273,7 +273,7 @@ export default function LandingPage() {
 
               {/* Step 5 */}
               <div className="flex flex-col md:flex-row gap-8 items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl gradient-accent flex items-center justify-center">
                     <Flame className="h-10 w-10 text-white animate-pulse-glow" />
                   </div>

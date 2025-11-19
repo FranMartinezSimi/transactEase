@@ -32,6 +32,7 @@ supabase db push
 **Archivo:** `001_oauth_setup.sql`
 
 **Qué hace:**
+
 - ✅ Crea tabla `invitations` para invitar usuarios a organizaciones
 - ✅ Actualiza rol enum en `profiles` para incluir 'owner'
 - ✅ Crea trigger para auto-crear profile cuando usuario hace OAuth signup
@@ -40,6 +41,7 @@ supabase db push
 - ✅ Crea función helper `accept_invitation()` para aceptar invitaciones
 
 **Seguro de aplicar:** ✅ Sí
+
 - No elimina datos
 - No modifica datos existentes
 - Solo agrega tablas, funciones y policies nuevas
@@ -50,11 +52,13 @@ supabase db push
 Después de aplicar, verifica en Supabase:
 
 ### 1. Tabla invitations creada
+
 ```sql
 SELECT * FROM public.invitations LIMIT 1;
 ```
 
 ### 2. Trigger funciona
+
 ```sql
 SELECT proname, prosrc
 FROM pg_proc
@@ -62,6 +66,7 @@ WHERE proname = 'handle_new_user';
 ```
 
 ### 3. RLS habilitado
+
 ```sql
 SELECT tablename, rowsecurity
 FROM pg_tables
@@ -94,6 +99,7 @@ ALTER TABLE public.profiles
 ## Próximas Migraciones
 
 Futuras migraciones se numerarán secuencialmente:
+
 - `002_*.sql`
 - `003_*.sql`
 - etc.

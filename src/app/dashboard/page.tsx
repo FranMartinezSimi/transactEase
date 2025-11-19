@@ -130,39 +130,58 @@ export default function DashboardPage() {
 
         {/* Sticky Stats Header */}
         <div className="sticky top-0 z-10 bg-background pb-6 pt-4 border-b mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Envíos Activos</CardTitle>
+                <CardTitle className="text-sm font-medium">Active deliveries</CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{activeDeliveries}</div>
                 <p className="text-xs text-muted-foreground">
-                  De {deliveries.length} totales
+                  From {deliveries.length} total
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Visualizaciones</CardTitle>
+                <CardTitle className="text-sm font-medium">Visualizations</CardTitle>
                 <Eye className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalViews}</div>
-                <p className="text-xs text-muted-foreground">Total de vistas</p>
+                <p className="text-xs text-muted-foreground">Total views</p>
               </CardContent>
             </Card>
-
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Descargas</CardTitle>
+                <CardTitle className="text-sm font-medium">Downloads</CardTitle>
                 <Download className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalDownloads}</div>
-                <p className="text-xs text-muted-foreground">Total de descargas</p>
+                <p className="text-xs text-muted-foreground">Total downloads</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Expired</CardTitle>
+                <Download className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalExpired}</div>
+                <p className="text-xs text-muted-foreground">Total expired</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Revoked</CardTitle>
+                <Download className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalRevoked}</div>
+                <p className="text-xs text-muted-foreground">Total revoked</p>
               </CardContent>
             </Card>
           </div>
