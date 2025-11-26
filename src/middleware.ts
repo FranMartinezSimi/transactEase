@@ -106,7 +106,7 @@ export async function middleware(request: NextRequest) {
 
   // Define public and protected paths
   const publicPaths = ["/", "/coming-soon"];
-  const protectedPaths = ["/dashboard", "/onboarding", "/send", "/audit", "/settings"];
+  const protectedPaths = ["/dashboard", "/onboarding", "/send", "/audit", "/settings", "/subscription", "/help"];
 
   // Check if current path is protected
   const isProtectedPath = protectedPaths.some((path) => pathname.startsWith(path));
