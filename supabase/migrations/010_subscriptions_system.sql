@@ -2,9 +2,20 @@
 -- Description: Sistema de suscripciones con planes y límites enforced
 
 -- =====================================================
+-- 0. Clean up if exists (for re-running migration)
+-- =====================================================
+DROP TRIGGER IF EXISTS trigger_create_subscription ON organizations;
+DROP FUNCTION IF EXISTS create_default_subscription() CASCADE;
+DROP FUNCTION IF EXISTS can_create_delivery(UUID) CASCADE;
+DROP FUNCTION IF EXISTS increment_delivery_usage(UUID) CASCADE;
+DROP FUNCTION IF EXISTS get_subscription_info(UUID) CASCADE;
+DROP TABLE IF EXISTS subscription_usage CASCADE;
+DROP TABLE IF EXISTS subscriptions CASCADE;
+
+-- =====================================================
 -- 1. CREATE subscriptions table
 -- =====================================================
-CREATE TABLE IF NOT EXISTS subscriptions (
+CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL UNIQUE REFERENCES organizations(id) ON DELETE CASCADE,
 
@@ -47,7 +58,7 @@ CREATE INDEX idx_subscriptions_status ON subscriptions(status);
 -- =====================================================
 -- 2. CREATE subscription_usage table (track monthly usage)
 -- =====================================================
-CREATE TABLE IF NOT EXISTS subscription_usage (
+CREATE TABLE subscription_usage (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
 
@@ -318,13 +329,35 @@ COMMENT ON FUNCTION get_subscription_info(UUID) IS 'Obtiene información complet
 -- =====================================================
 -- 9. Migrate existing organizations to have subscriptions
 -- =====================================================
--- This will trigger the auto-create function for existing orgs
-DO $$
-DECLARE
-  org_record RECORD;
-BEGIN
-  FOR org_record IN SELECT id, is_early_adopter FROM organizations LOOP
-    -- Manually insert subscriptions for existing orgs
-    PERFORM create_default_subscription() FROM organizations WHERE id = org_record.id;
-  END LOOP;
-END $$;
+-- Manually create subscriptions for existing organizations
+INSERT INTO subscriptions (
+  organization_id,
+  plan,
+  status,
+  deliveries_limit,
+  storage_limit_gb,
+  users_limit,
+  ai_compliance_enabled
+)
+SELECT
+  id,
+  CASE
+    WHEN is_early_adopter = true THEN 'early_adopter'
+    ELSE 'starter'
+  END AS plan,
+  'active' AS status,
+  CASE
+    WHEN is_early_adopter = true THEN 5
+    ELSE 50
+  END AS deliveries_limit,
+  CASE
+    WHEN is_early_adopter = true THEN 1
+    ELSE 10
+  END AS storage_limit_gb,
+  CASE
+    WHEN is_early_adopter = true THEN 1
+    ELSE 5
+  END AS users_limit,
+  false AS ai_compliance_enabled
+FROM organizations
+WHERE id NOT IN (SELECT organization_id FROM subscriptions);
