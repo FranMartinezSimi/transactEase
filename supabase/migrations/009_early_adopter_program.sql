@@ -22,11 +22,11 @@ CREATE TABLE IF NOT EXISTS early_adopter_config (
   program_started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   program_ends_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-
-  -- Solo permitir una fila de configuración
-  CONSTRAINT single_config CHECK (id = gen_random_uuid())
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Constraint para permitir solo una fila de configuración
+CREATE UNIQUE INDEX IF NOT EXISTS single_config_row ON early_adopter_config ((true));
 
 -- Insert default configuration (50 early adopter slots)
 INSERT INTO early_adopter_config (max_slots, slots_used)
@@ -41,7 +41,11 @@ RETURNS TABLE(
   available BOOLEAN,
   slots_remaining INTEGER,
   program_active BOOLEAN
-) AS $$
+)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER -- Execute with owner's permissions, bypassing RLS
+AS $$
 DECLARE
   config early_adopter_config;
 BEGIN
@@ -54,7 +58,7 @@ BEGIN
     (config.max_slots - config.slots_used) AS slots_remaining,
     config.program_active;
 END;
-$$ LANGUAGE plpgsql STABLE;
+$$;
 
 -- =====================================================
 -- 4. CREATE function to claim early adopter slot
@@ -64,7 +68,10 @@ RETURNS TABLE(
   success BOOLEAN,
   message TEXT,
   is_early_adopter BOOLEAN
-) AS $$
+)
+LANGUAGE plpgsql
+SECURITY DEFINER -- Execute with owner's permissions, bypassing RLS
+AS $$
 DECLARE
   config early_adopter_config;
   org organizations;
@@ -113,7 +120,7 @@ BEGIN
     RETURN QUERY SELECT false, 'Error al asignar slot: ' || SQLERRM, false;
   END;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- =====================================================
 -- 5. CREATE trigger to auto-update slots_used counter
@@ -144,11 +151,10 @@ $$ LANGUAGE plpgsql;
 -- =====================================================
 ALTER TABLE early_adopter_config ENABLE ROW LEVEL SECURITY;
 
--- Anyone authenticated can read the config (to check availability)
-CREATE POLICY "Anyone can read early adopter config"
+-- Public read access (to check availability from landing page)
+CREATE POLICY "Public read early adopter config"
   ON early_adopter_config
   FOR SELECT
-  TO authenticated
   USING (true);
 
 -- Only service role can update

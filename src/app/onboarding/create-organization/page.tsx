@@ -9,6 +9,7 @@ import { Label } from "@shared/components/ui/label"
 import { Loader2, Building2 } from "lucide-react"
 import { toast } from "sonner"
 import { AuthCard } from "@shared/components/auth/auth-card"
+import { EarlyAdopterWelcomeModal } from "@/components/modals/EarlyAdopterWelcomeModal"
 
 export default function CreateOrganizationPage() {
   const router = useRouter()
@@ -17,6 +18,11 @@ export default function CreateOrganizationPage() {
   const [formData, setFormData] = useState({
     organizationName: "",
   })
+  const [showEarlyAdopterModal, setShowEarlyAdopterModal] = useState(false)
+  const [earlyAdopterSlot, setEarlyAdopterSlot] = useState<{
+    slotNumber: number;
+    totalSlots: number;
+  } | null>(null)
 
   useEffect(() => {
     checkAuth()
@@ -85,15 +91,22 @@ export default function CreateOrganizationPage() {
         return
       }
 
+      // Step 1: Check early adopter availability
+      const { data: availabilityData } = await fetch('/api/early-adopter/availability').then(r => r.json())
+      const isEarlyAdopterAvailable = availabilityData?.available || false
+      const slotsRemaining = availabilityData?.slotsRemaining || 0
+
       // Generate UUID for the organization
       const orgId = crypto.randomUUID()
 
-      // Create organization
+      // Step 2: Create organization with early adopter flag
       const { data: org, error: orgError } = await supabase
         .from("organizations")
         .insert({
           id: orgId,
           name: formData.organizationName,
+          is_early_adopter: isEarlyAdopterAvailable,
+          early_adopter_joined_at: isEarlyAdopterAvailable ? new Date().toISOString() : null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -107,7 +120,23 @@ export default function CreateOrganizationPage() {
         return
       }
 
-      // Update user profile with organization
+      // Step 3: Claim early adopter slot if available
+      if (isEarlyAdopterAvailable) {
+        const { data: claimData } = await supabase.rpc('claim_early_adopter_slot', {
+          org_id: org.id
+        })
+
+        if (claimData?.[0]?.success) {
+          // Calculate slot number (50 total - remaining + 1)
+          const slotNumber = 50 - slotsRemaining + 1
+          setEarlyAdopterSlot({
+            slotNumber,
+            totalSlots: 50
+          })
+        }
+      }
+
+      // Step 4: Update user profile with organization
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -124,36 +153,27 @@ export default function CreateOrganizationPage() {
         return
       }
 
-      // Create subscription for the organization
-      const subId = crypto.randomUUID()
-      const { error: subError } = await supabase
-        .from("subscriptions")
-        .insert({
-          id: subId,
-          organization_id: org.id,
-          plan: "free",
-          status: "trialing",
-          max_deliveries_per_month: 10,
-          max_storage_gb: 1,
-          max_users: 3,
-          max_file_size: 10,
-          ai_compliance_enabled: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-
-      if (subError) {
-        console.error("[Onboarding] Subscription creation error:", subError)
-        // Don't fail the whole flow, just log it
-      }
+      // Step 5: Subscription is auto-created by database trigger
 
       toast.success("Organization created successfully!")
-      router.push("/dashboard")
+      setIsLoading(false)
+
+      // Step 6: Show early adopter modal or redirect
+      if (isEarlyAdopterAvailable && earlyAdopterSlot) {
+        setShowEarlyAdopterModal(true)
+      } else {
+        router.push("/dashboard")
+      }
     } catch (error) {
       console.error("[Onboarding] Unexpected error:", error)
       toast.error("An unexpected error occurred")
       setIsLoading(false)
     }
+  }
+
+  function handleModalClose() {
+    setShowEarlyAdopterModal(false)
+    router.push("/dashboard")
   }
 
   if (isCheckingAuth) {
@@ -165,58 +185,70 @@ export default function CreateOrganizationPage() {
   }
 
   return (
-    <AuthCard
-      title="Create Your Organization"
-      description="Set up your organization to start sending secure documents"
-      footer={
-        <div className="w-full text-center">
-          <p className="text-sm text-muted-foreground">
-            Need help?{" "}
-            <a href="/support" className="text-primary hover:underline font-semibold">
-              Contact Support
-            </a>
-          </p>
-        </div>
-      }
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="organizationName">Organization Name</Label>
-          <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              id="organizationName"
-              type="text"
-              placeholder="Acme Inc."
-              className="pl-10"
-              value={formData.organizationName}
-              onChange={(e) => setFormData({ organizationName: e.target.value })}
-              required
-              disabled={isLoading}
-              minLength={2}
-              maxLength={100}
-            />
+    <>
+      <AuthCard
+        title="Create Your Organization"
+        description="Set up your organization to start sending secure documents"
+        footer={
+          <div className="w-full text-center">
+            <p className="text-sm text-muted-foreground">
+              Need help?{" "}
+              <a href="/support" className="text-primary hover:underline font-semibold">
+                Contact Support
+              </a>
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            This will be the name of your workspace
-          </p>
-        </div>
+        }
+      >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="organizationName">Organization Name</Label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                id="organizationName"
+                type="text"
+                placeholder="Acme Inc."
+                className="pl-10"
+                value={formData.organizationName}
+                onChange={(e) => setFormData({ organizationName: e.target.value })}
+                required
+                disabled={isLoading}
+                minLength={2}
+                maxLength={100}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              This will be the name of your workspace
+            </p>
+          </div>
 
-        <Button
-          type="submit"
-          className="w-full gradient-primary"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating organization...
-            </>
-          ) : (
-            "Create Organization"
-          )}
-        </Button>
-      </form>
-    </AuthCard>
+          <Button
+            type="submit"
+            className="w-full gradient-primary"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating organization...
+              </>
+            ) : (
+              "Create Organization"
+            )}
+          </Button>
+        </form>
+      </AuthCard>
+
+      {/* Early Adopter Welcome Modal */}
+      {earlyAdopterSlot && (
+        <EarlyAdopterWelcomeModal
+          isOpen={showEarlyAdopterModal}
+          onClose={handleModalClose}
+          slotNumber={earlyAdopterSlot.slotNumber}
+          totalSlots={earlyAdopterSlot.totalSlots}
+        />
+      )}
+    </>
   )
 }

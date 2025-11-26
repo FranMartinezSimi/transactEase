@@ -39,6 +39,32 @@ export async function POST(req: Request) {
     );
   }
 
+  // ✅ ENFORCEMENT: Check if organization can create delivery
+  const { data: limitCheck, error: limitError } = await supabase.rpc(
+    "can_create_delivery",
+    { org_id: profile.organization_id }
+  );
+
+  if (limitError) {
+    console.error("[POST /api/deliveries] Limit check error:", limitError);
+    return NextResponse.json(
+      { message: "Failed to check delivery limits" },
+      { status: 500 }
+    );
+  }
+
+  const limit = limitCheck?.[0];
+  if (!limit?.allowed) {
+    return NextResponse.json(
+      {
+        message: limit?.reason || "Delivery limit reached",
+        deliveries_used: limit?.deliveries_used || 0,
+        deliveries_limit: limit?.deliveries_limit || 0,
+      },
+      { status: 402 } // 402 Payment Required
+    );
+  }
+
   const service = new DeliveryService(new DeliveryRepository(supabase));
   const delivery = await service.sendDelivery({
     senderId: user.id,
@@ -50,6 +76,12 @@ export async function POST(req: Request) {
     maxViews,
     maxDownloads,
   });
+
+  // ✅ INCREMENT: Increment delivery counter after successful creation
+  await supabase.rpc("increment_delivery_usage", {
+    org_id: profile.organization_id,
+  });
+
   return NextResponse.json(delivery, { status: 201 });
 }
 

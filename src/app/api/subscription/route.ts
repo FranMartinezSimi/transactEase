@@ -44,41 +44,27 @@ export async function GET(req: NextRequest) {
       role: profile.role,
     });
 
-    // Get subscription for the organization
-    const { data: subscription, error: subError } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("organization_id", profile.organization_id)
-      .single();
+    // Get subscription info using database function (includes usage stats)
+    const { data: subscriptionInfo, error: subError } = await supabase.rpc(
+      "get_subscription_info",
+      { org_id: profile.organization_id }
+    );
 
     if (subError) {
       console.error("[API] Error fetching subscription:", subError);
-
-      // If no subscription exists, return default starter plan info
-      if (subError.code === "PGRST116") {
-        console.log("[API] No subscription found, returning default starter plan");
-        return NextResponse.json(
-          {
-            success: true,
-            subscription: {
-              plan: "starter",
-              status: "trial",
-              max_deliveries_per_month: 50,
-              max_storage_gb: 5,
-              max_users: 3,
-              max_file_size: 25,
-              ai_compliance_enabled: false,
-              deliveries_this_month: 0,
-              storage_used_gb: 0,
-            },
-          },
-          { status: 200 }
-        );
-      }
-
       return NextResponse.json(
         { success: false, error: "Failed to fetch subscription" },
         { status: 500 }
+      );
+    }
+
+    const subscription = subscriptionInfo?.[0];
+
+    if (!subscription) {
+      console.log("[API] No subscription found");
+      return NextResponse.json(
+        { success: false, error: "No subscription found" },
+        { status: 404 }
       );
     }
 
@@ -87,7 +73,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        subscription,
+        subscription: {
+          plan: subscription.plan,
+          status: subscription.status,
+          deliveries_limit: subscription.deliveries_limit,
+          deliveries_used: subscription.deliveries_used,
+          storage_limit_gb: subscription.storage_limit_gb,
+          storage_used_gb: subscription.storage_used_gb,
+          users_limit: subscription.users_limit,
+          ai_compliance_enabled: subscription.ai_compliance_enabled,
+        },
       },
       { status: 200 }
     );
