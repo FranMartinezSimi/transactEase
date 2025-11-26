@@ -48,3 +48,6 @@ docs
 .claude
 VISION-Y-ESTRATEGIA.md
 MVP-ROADMAP.md
+
+# Variables file with secrets
+variables.txt

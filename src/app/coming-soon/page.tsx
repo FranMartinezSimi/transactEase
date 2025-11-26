@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Rocket, Bell, CheckCircle2 } from "lucide-react";
-import { WaitlistModal } from "@/components/waitlist-modal";
+import { WaitlistModal } from "@shared/components/waitlist-modal";
 import Image from "next/image";
 import Logo from "../../../public/Sealdrop.svg";
 

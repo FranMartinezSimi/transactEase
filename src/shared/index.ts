@@ -1,0 +1,35 @@
+/**
+ * Shared - Public API
+ *
+ * Código compartido entre todos los features:
+ * - Components UI globales
+ * - Hooks reutilizables
+ * - Librerías (Supabase, Email, Logger)
+ * - Utilidades y validaciones
+ */
+
+// Components
+export { AuthenticatedLayout } from "./components/AuthenticatedLayout";
+export { AppSidebar } from "./components/AppSidebar";
+export { ReactQueryProvider } from "./components/ReactQueryProvider";
+export { LocationPermission } from "./components/LocationPermission";
+// export * from "./components/ui"; // TODO: Create index file
+
+// Hooks
+export { useIsMobile } from "./hooks/use-mobile";
+export { useTheme } from "./hooks/useTheme";
+export { useLocation } from "./hooks/useLocation";
+
+// Lib
+export { createClient } from "./lib/supabase/client";
+export { createClient as createServerClient } from "./lib/supabase/server";
+export { sendDeliveryNotification } from "./lib/email/send-delivery-notification";
+export { sendAccessCode } from "./lib/email/send-access-code";
+export { sendUserInvitation } from "./lib/email/send-user-invitation";
+export { logger } from "./lib/logger";
+// export { analytics } from "./lib/analytics"; // TODO: Fix analytics export
+
+// Utils
+export { cn } from "./utils/utils";
+export * from "./utils/validations/common";
+export * from "./utils/validations/file";

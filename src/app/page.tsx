@@ -1,34 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { WaitlistModal } from "@/components/waitlist-modal";
-import { FAQSection } from "@/components/faq-section";
-import { ProductShowcase } from "@/components/product-showcase";
-import { trackCTAClick } from "@/lib/analytics";
+import { WaitlistModal } from "@shared/components/waitlist-modal";
+import { FAQSection } from "@shared/components/faq-section";
+import { ProductShowcase } from "@shared/components/product-showcase";
+import { trackCTAClick } from "@shared/lib/analytics";
 import {
   Shield,
   Lock,
   FileCheck,
   Clock,
   Flame,
-  Eye,
   AlertTriangle,
   Mail,
   ShieldAlert,
   CheckCircle2,
   XCircle,
   Activity,
-  FileBarChart,
+  LogIn,
   Upload,
-  Send,
   KeyRound,
   Download,
-  Trash2,
   ArrowRight,
   Globe,
 } from "lucide-react";
 import Logo from "../../public/Sealdrop.svg";
 import Image from 'next/image'
+import { Button } from "@shared/components/ui/button";
+import Link from "next/link";
 
 
 export default function LandingPage() {
@@ -42,6 +41,13 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <Image src={Logo} alt="Sealdrop Logo" className="h-30 w-30" />
               <span className="text-2xl font-bold text-foreground">Sealdrop</span>
+            </div>
+            <div className="flex items-center  w-1/12 h-14 rounded-lg">
+              <Button variant="default" asChild className="p-4 bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-4 w-full rounded-lg h-full">
+                <Link href="/auth/login">
+                  <LogIn className="h-4 w-4 text-primary-foreground hover:text-primary-foreground/80" />
+                  <span className="text-sm font-medium text-primary-foreground hover:text-primary-foreground/80">Login</span>
+                </Link></Button>
             </div>
           </div>
         </div>
@@ -183,7 +189,7 @@ export default function LandingPage() {
             <div className="max-w-5xl mx-auto">
               {/* Step 1 */}
               <div className="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center">
                     <Upload className="h-10 w-10 text-primary" />
                   </div>
@@ -204,7 +210,7 @@ export default function LandingPage() {
 
               {/* Step 2 */}
               <div className="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center">
                     <Mail className="h-10 w-10 text-primary" />
                   </div>
@@ -225,7 +231,7 @@ export default function LandingPage() {
 
               {/* Step 3 */}
               <div className="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl gradient-accent flex items-center justify-center">
                     <KeyRound className="h-10 w-10 text-white" />
                   </div>
@@ -246,7 +252,7 @@ export default function LandingPage() {
 
               {/* Step 4 */}
               <div className="flex flex-col md:flex-row gap-8 items-center mb-12">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl bg-success/20 flex items-center justify-center">
                     <Download className="h-10 w-10 text-success" />
                   </div>
@@ -267,7 +273,7 @@ export default function LandingPage() {
 
               {/* Step 5 */}
               <div className="flex flex-col md:flex-row gap-8 items-center">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <div className="w-20 h-20 rounded-2xl gradient-accent flex items-center justify-center">
                     <Flame className="h-10 w-10 text-white animate-pulse-glow" />
                   </div>
