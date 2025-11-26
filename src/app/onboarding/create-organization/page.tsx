@@ -17,6 +17,8 @@ export default function CreateOrganizationPage() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [formData, setFormData] = useState({
     organizationName: "",
+    domain: "",
+    website: "",
   })
   const [showEarlyAdopterModal, setShowEarlyAdopterModal] = useState(false)
   const [earlyAdopterSlot, setEarlyAdopterSlot] = useState<{
@@ -104,7 +106,9 @@ export default function CreateOrganizationPage() {
         .from("organizations")
         .insert({
           id: orgId,
-          name: formData.organizationName,
+          name: formData.organizationName.trim(),
+          domain: formData.domain.trim() || null,
+          website: formData.website.trim() || null,
           is_early_adopter: isEarlyAdopterAvailable,
           early_adopter_joined_at: isEarlyAdopterAvailable ? new Date().toISOString() : null,
           created_at: new Date().toISOString(),
@@ -187,22 +191,22 @@ export default function CreateOrganizationPage() {
   return (
     <>
       <AuthCard
-        title="Create Your Organization"
-        description="Set up your organization to start sending secure documents"
+        title="Complete Your Profile"
+        description="Quick setup to start sending secure files"
         footer={
           <div className="w-full text-center">
             <p className="text-sm text-muted-foreground">
-              Need help?{" "}
-              <a href="/support" className="text-primary hover:underline font-semibold">
-                Contact Support
-              </a>
+              All fields except organization name are optional
             </p>
           </div>
         }
       >
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Organization Name - Required */}
           <div className="space-y-2">
-            <Label htmlFor="organizationName">Organization Name</Label>
+            <Label htmlFor="organizationName">
+              Organization Name <span className="text-destructive">*</span>
+            </Label>
             <div className="relative">
               <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
@@ -211,30 +215,60 @@ export default function CreateOrganizationPage() {
                 placeholder="Acme Inc."
                 className="pl-10"
                 value={formData.organizationName}
-                onChange={(e) => setFormData({ organizationName: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
                 required
                 disabled={isLoading}
                 minLength={2}
                 maxLength={100}
               />
             </div>
+          </div>
+
+          {/* Domain - Optional */}
+          <div className="space-y-2">
+            <Label htmlFor="domain">
+              Company Domain <span className="text-xs text-muted-foreground">(Optional)</span>
+            </Label>
+            <Input
+              id="domain"
+              type="text"
+              placeholder="acme.com"
+              value={formData.domain}
+              onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+              disabled={isLoading}
+            />
             <p className="text-xs text-muted-foreground">
-              This will be the name of your workspace
+              Used for email validation and branding
             </p>
+          </div>
+
+          {/* Website - Optional */}
+          <div className="space-y-2">
+            <Label htmlFor="website">
+              Website <span className="text-xs text-muted-foreground">(Optional)</span>
+            </Label>
+            <Input
+              id="website"
+              type="url"
+              placeholder="https://acme.com"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              disabled={isLoading}
+            />
           </div>
 
           <Button
             type="submit"
             className="w-full gradient-primary"
-            disabled={isLoading}
+            disabled={isLoading || !formData.organizationName.trim()}
           >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating organization...
+                Setting up...
               </>
             ) : (
-              "Create Organization"
+              "Continue to Dashboard"
             )}
           </Button>
         </form>
