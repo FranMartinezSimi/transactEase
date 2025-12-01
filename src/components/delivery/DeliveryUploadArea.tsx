@@ -38,7 +38,14 @@ export function DeliveryUploadArea({
             : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600"
         }`}
       >
-        <input id="file" type="file" onChange={onFileChange} className="hidden" disabled={isUploading} />
+        <input
+          id="file"
+          type="file"
+          onChange={onFileChange}
+          className="hidden"
+          disabled={isUploading}
+          accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp,.zip,.rar,.7z,.txt,.csv,.json"
+        />
         {file ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between p-4 bg-muted rounded-lg">

@@ -89,7 +89,6 @@ const PLAN_FEATURES = {
       "20GB de almacenamiento",
       "Archivos hasta 100MB",
       "Todo de Starter, más:",
-      "Compliance AI básico",
       "Reportes de auditoría",
       "Usuarios adicionales: $10/mes",
       "Soporte prioritario",
@@ -107,7 +106,6 @@ const PLAN_FEATURES = {
       "Almacenamiento ilimitado",
       "Archivos hasta 500MB",
       "Todo de Professional, más:",
-      "Compliance AI avanzado",
       "SSO personalizado",
       "Soporte 24/7 dedicado",
       "SLA garantizado 99.9%",
@@ -316,56 +314,56 @@ export default function SettingsPage() {
               {Object.entries(PLAN_FEATURES)
                 .filter(([planKey]) => planKey !== "free") // Exclude legacy free plan
                 .map(([planKey, plan]) => {
-                const isCurrent = planKey === subscription.plan;
-                const PlanIcon = plan.icon;
+                  const isCurrent = planKey === subscription.plan;
+                  const PlanIcon = plan.icon;
 
-                return (
-                  <Card
-                    key={planKey}
-                    className={isCurrent ? "border-primary border-2" : ""}
-                  >
-                    <CardHeader>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <PlanIcon className={`h-5 w-5 ${plan.color}`} />
+                  return (
+                    <Card
+                      key={planKey}
+                      className={isCurrent ? "border-primary border-2" : ""}
+                    >
+                      <CardHeader>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <PlanIcon className={`h-5 w-5 ${plan.color}`} />
+                          </div>
+                          {isCurrent && (
+                            <Badge variant="default">Plan Actual</Badge>
+                          )}
                         </div>
-                        {isCurrent && (
-                          <Badge variant="default">Plan Actual</Badge>
-                        )}
-                      </div>
-                      <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                      <CardDescription className="text-sm">{plan.description}</CardDescription>
-                      <div className="mt-4">
-                        <span className="text-3xl font-bold">{plan.price}</span>
-                        {planKey !== "enterprise" && (
-                          <span className="text-muted-foreground">/mes</span>
-                        )}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="space-y-3 mb-6">
-                        {plan.features.map((feature, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                            <span className="text-sm">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <Button
-                        className="w-full"
-                        variant={isCurrent ? "outline" : "default"}
-                        disabled={isCurrent}
-                      >
-                        {isCurrent
-                          ? "Plan Actual"
-                          : planKey === "enterprise"
-                            ? "Contactar Ventas"
-                            : "Mejorar a " + plan.name}
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+                        <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                        <CardDescription className="text-sm">{plan.description}</CardDescription>
+                        <div className="mt-4">
+                          <span className="text-3xl font-bold">{plan.price}</span>
+                          {planKey !== "enterprise" && (
+                            <span className="text-muted-foreground">/mes</span>
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-3 mb-6">
+                          {plan.features.map((feature, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                              <span className="text-sm">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <Button
+                          className="w-full"
+                          variant={isCurrent ? "outline" : "default"}
+                          disabled={isCurrent}
+                        >
+                          {isCurrent
+                            ? "Plan Actual"
+                            : planKey === "enterprise"
+                              ? "Contactar Ventas"
+                              : "Mejorar a " + plan.name}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
             </div>
           </>
         )}

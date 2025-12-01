@@ -16,7 +16,6 @@ export interface Profile {
     subscription?: {
       plan: string;
       status: string;
-      ai_compliance_enabled: boolean;
     };
   };
 }
@@ -56,8 +55,7 @@ export function useProfile() {
           name,
           subscriptions (
             plan,
-            status,
-            ai_compliance_enabled
+            status
           )
         )
       `
@@ -92,8 +90,6 @@ export function useProfile() {
                     ? {
                         plan: org.subscriptions[0].plan,
                         status: org.subscriptions[0].status,
-                        ai_compliance_enabled:
-                          org.subscriptions[0].ai_compliance_enabled,
                       }
                     : undefined,
               }

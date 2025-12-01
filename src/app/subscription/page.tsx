@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AuthenticatedLayout } from "@shared/components/AuthenticatedLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@shared/components/ui/card";
 import { Button } from "@shared/components/ui/button";
 import { Badge } from "@shared/components/ui/badge";
 import { Progress } from "@shared/components/ui/progress";
-import { Check, Crown, Zap, Loader2, Sparkles } from "lucide-react";
+import { Check, Crown, Zap, Loader2, Sparkles, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface SubscriptionData {
@@ -21,8 +22,10 @@ interface SubscriptionData {
 }
 
 export default function SubscriptionPage() {
+  const router = useRouter();
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [managingBilling, setManagingBilling] = useState(false);
 
   useEffect(() => {
     fetchSubscription();
@@ -45,6 +48,16 @@ export default function SubscriptionPage() {
       setLoading(false);
     }
   }
+
+  const handleManageBilling = () => {
+    // For now, redirect to pricing page
+    // Later, you can integrate Lemon Squeezy customer portal
+    router.push("/pricing");
+  };
+
+  const handleUpgrade = () => {
+    router.push("/pricing");
+  };
 
   const getPlanBadge = (plan: string) => {
     switch (plan) {
@@ -129,10 +142,10 @@ export default function SubscriptionPage() {
                     : "Your active subscription plan"}
                 </CardDescription>
               </div>
-              {subscription.plan !== "early_adopter" && (
-                <Button disabled>
+              {subscription.plan !== "early_adopter" && subscription.plan !== "enterprise" && (
+                <Button onClick={handleManageBilling}>
+                  <ExternalLink className="mr-2 h-4 w-4" />
                   Manage Billing
-                  <span className="ml-2 text-xs">(Coming Soon)</span>
                 </Button>
               )}
             </div>
@@ -226,9 +239,8 @@ export default function SubscriptionPage() {
                     Upgrade to Pro for 500 deliveries/month and advanced features
                   </p>
                 </div>
-                <Button disabled>
+                <Button onClick={handleUpgrade}>
                   Upgrade Plan
-                  <span className="ml-2 text-xs">(Coming Soon)</span>
                 </Button>
               </div>
             </CardContent>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { WaitlistModal } from "@shared/components/waitlist-modal";
+import { FeedbackModal } from "@shared/components/feedback-modal";
 import { FAQSection } from "@shared/components/faq-section";
 import { ProductShowcase } from "@shared/components/product-showcase";
 import { trackCTAClick } from "@shared/lib/analytics";
@@ -23,6 +24,8 @@ import {
   Download,
   ArrowRight,
   Globe,
+  Sparkles,
+  MessageSquare,
 } from "lucide-react";
 import Logo from "../../public/Sealdrop.svg";
 import Image from 'next/image'
@@ -32,6 +35,8 @@ import Link from "next/link";
 
 export default function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -726,7 +731,6 @@ export default function LandingPage() {
                   Secure My Spot
                 </button>
               </div>
-              <WaitlistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
 
               <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1">
@@ -743,9 +747,228 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <section id="pricing" className="py-20 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
+                Simple, Transparent Pricing
+              </h2>
+              <p className="text-xl text-muted-foreground">
+                Choose the plan that fits your needs. All plans include complete audit trails and auto-destruction.
+              </p>
+            </div>
+
+            {/* Early Adopter Banner */}
+            <div className="max-w-4xl mx-auto mb-12">
+              <div className="bg-gradient-to-r from-primary/20 to-purple-500/20 border-2 border-primary/30 rounded-2xl p-8 text-center">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+                  <h3 className="text-3xl font-bold text-foreground">Early Adopter Program</h3>
+                </div>
+                <p className="text-xl text-muted-foreground mb-4">
+                  Be one of the <strong className="text-primary">first 50 users</strong> and get our platform{" "}
+                  <strong className="text-primary">free forever</strong>
+                </p>
+                <div className="flex flex-wrap justify-center gap-6 text-sm">
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-success" />
+                    <strong>10 deliveries/month</strong>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-success" />
+                    <strong>500 MB storage</strong>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-success" />
+                    <strong>Complete audit trail</strong>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-success" />
+                    <strong>No credit card required</strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Pricing Cards */}
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {/* Starter Plan */}
+              <div className="bg-card rounded-2xl border-2 border-border p-8 hover:border-primary/50 transition-all hover:shadow-xl">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">Starter</h3>
+                  <p className="text-muted-foreground mb-4">Perfect for small teams</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-bold text-foreground">$15</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">50 deliveries/month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">10 GB storage</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Up to 5 team members</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Complete audit trail</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Auto-destruction</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Email support</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="/auth/login">Get Started</Link>
+                </Button>
+              </div>
+
+              {/* Pro Plan - Highlighted */}
+              <div className="bg-card rounded-2xl border-2 border-primary p-8 relative scale-105 shadow-2xl">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-purple-600 text-white px-4 py-1 rounded-full text-sm font-bold">
+                  Most Popular
+                </div>
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">Professional</h3>
+                  <p className="text-muted-foreground mb-4">For growing teams</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-bold text-foreground">$49</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">500 deliveries/month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">50 GB storage</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Up to 20 team members</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Complete audit trail</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Auto-destruction</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Priority support</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Advanced analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Custom branding</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full">
+                  <Link href="/auth/login">Get Started</Link>
+                </Button>
+              </div>
+
+              {/* Enterprise Plan */}
+              <div className="bg-card rounded-2xl border-2 border-border p-8 hover:border-primary/50 transition-all hover:shadow-xl">
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-foreground mb-2">Enterprise</h3>
+                  <p className="text-muted-foreground mb-4">For large organizations</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-bold text-foreground">$149</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Unlimited deliveries</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">500 GB storage</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Unlimited team members</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Complete audit trail</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Auto-destruction</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Dedicated support</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Advanced analytics</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">Custom branding</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">SLA guarantee</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm">API access</span>
+                  </li>
+                </ul>
+                <Button asChild className="w-full" variant="outline">
+                  <Link href="/auth/login">Get Started</Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Trust Footer */}
+            <div className="max-w-4xl mx-auto mt-12 text-center text-sm text-muted-foreground">
+              <p className="mb-2">All plans include bank-level encryption, complete audit logs, and auto-destruction.</p>
+              <p>Cancel anytime. No hidden fees. Powered by Lemon Squeezy.</p>
+            </div>
+          </div>
+        </section>
+
         {/* FAQ Section */}
         <FAQSection />
       </main>
+
+      {/* Floating Feedback Button */}
+      <button
+        onClick={() => setIsFeedbackOpen(true)}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-purple-600 text-white font-semibold shadow-2xl hover:shadow-xl hover:scale-105 transition-all duration-300"
+        aria-label="Open feedback modal"
+      >
+        <MessageSquare className="h-5 w-5" />
+        <span className="hidden sm:inline">Questions?</span>
+      </button>
+
+      {/* Modals */}
+      <WaitlistModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
 
       {/* Footer */}
       <footer className="border-t border-border bg-card/50 py-12">

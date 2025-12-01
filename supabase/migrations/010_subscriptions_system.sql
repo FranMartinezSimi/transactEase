@@ -99,8 +99,8 @@ BEGIN
   -- Determine plan based on early_adopter status
   IF NEW.is_early_adopter = true THEN
     plan_type := 'early_adopter';
-    deliveries_limit := 5;
-    storage_limit := 1;
+    deliveries_limit := 10;
+    storage_limit := 0.5;  -- 500MB for early adopters
     users_limit := 1;
     ai_enabled := false;
   ELSE
@@ -347,11 +347,11 @@ SELECT
   END AS plan,
   'active' AS status,
   CASE
-    WHEN is_early_adopter = true THEN 5
+    WHEN is_early_adopter = true THEN 10
     ELSE 50
   END AS deliveries_limit,
   CASE
-    WHEN is_early_adopter = true THEN 1
+    WHEN is_early_adopter = true THEN 0.5
     ELSE 10
   END AS storage_limit_gb,
   CASE

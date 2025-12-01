@@ -13,6 +13,7 @@ import { sendDeliveryNotification } from "@shared/lib/email/send-delivery-notifi
 import { getAWSConfig } from "@shared/lib/aws/config";
 import { withRateLimit, RateLimitPresets } from "@shared/lib/rate-limit";
 import { sanitizeText, sanitizeEmail, sanitizeFilename } from "@shared/lib/sanitize";
+import { checkSubscriptionLimits, incrementDeliveryUsage } from "@shared/lib/subscription/guards";
 
 async function uploadHandler(req: NextRequest) {
   const log = createContextLogger({ operation: "uploadDelivery" });
@@ -73,6 +74,32 @@ async function uploadHandler(req: NextRequest) {
       return NextResponse.json(
         { message: "User without organization" },
         { status: 400 }
+      );
+    }
+
+    // Check subscription limits using centralized guard
+    const subscriptionCheck = await checkSubscriptionLimits(
+      supabase,
+      profile.organization_id,
+      "upload_file",
+      { fileSizeBytes: file.size }
+    );
+
+    if (!subscriptionCheck.allowed) {
+      log.warn(
+        {
+          organizationId: profile.organization_id,
+          reason: subscriptionCheck.reason,
+          metadata: subscriptionCheck.metadata
+        },
+        "Subscription check failed"
+      );
+      return NextResponse.json(
+        {
+          message: subscriptionCheck.reason,
+          ...subscriptionCheck.metadata,
+        },
+        { status: subscriptionCheck.statusCode || 402 }
       );
     }
 
@@ -217,22 +244,25 @@ async function uploadHandler(req: NextRequest) {
       );
     }
 
-    const hashId = crypto.randomUUID();
-    const { error: hashError } = await supabase.from("document_hashes").insert({
-      id: hashId,
-      document_id: fileId,
-      delivery_id: deliveryId,
-      original_filename: originalName,
-      hash: fileHash,
-      algorithm: "SHA-256",
-      file_size: body.length,
-      mime_type: contentType,
-      updated_at: new Date().toISOString(),
-    });
-    if (hashError) {
-      log.warn(
-        { error: hashError },
-        "Failed to create document_hashes record (non-critical)"
+    // Increment usage counter AFTER successful upload
+    const usageResult = await incrementDeliveryUsage(
+      supabase,
+      profile.organization_id
+    );
+
+    if (!usageResult.success) {
+      // Log error but don't fail - delivery was created successfully
+      log.error(
+        {
+          error: usageResult.error,
+          organizationId: profile.organization_id,
+        },
+        "Failed to increment delivery usage counter (non-critical)"
+      );
+    } else {
+      log.debug(
+        { organizationId: profile.organization_id },
+        "Delivery usage counter incremented"
       );
     }
 

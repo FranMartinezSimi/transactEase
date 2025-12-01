@@ -79,8 +79,8 @@ git commit -m "feat: complete early adopter program with subscription system
 - All navigation routes working
 
 Early adopters get:
-- 5 deliveries/month
-- 1 GB storage
+- 10 deliveries/month
+- 500 MB storage
 - Free forever
 - Automatic slot assignment"
 

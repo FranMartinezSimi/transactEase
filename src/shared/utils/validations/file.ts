@@ -32,6 +32,11 @@ export const ALLOWED_FILE_TYPES = [
   // Text
   "text/plain",
   "text/csv",
+  // CSV variations (Windows, Mac, Linux report different MIME types)
+  "application/csv",
+  "application/vnd.ms-excel", // Old Excel format, sometimes used for CSV
+  // JSON
+  "application/json",
 ];
 
 // Send File Schema

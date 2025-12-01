@@ -1,6 +1,7 @@
 import { createClient } from "@shared/lib/supabase/server";
 import { sendUserInvitation } from "@shared/lib/email/send-user-invitation";
 import { NextRequest, NextResponse } from "next/server";
+import { checkSubscriptionLimits } from "@shared/lib/subscription/guards";
 
 export async function GET(req: NextRequest) {
   try {
@@ -195,6 +196,31 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("[API] Organization domain:", org.domain);
+
+    // Check subscription user limit using centralized guard
+    const subscriptionCheck = await checkSubscriptionLimits(
+      supabase,
+      profile.organization_id,
+      "add_member"
+    );
+
+    if (!subscriptionCheck.allowed) {
+      console.error(
+        "[API] Subscription check failed:",
+        subscriptionCheck.reason,
+        subscriptionCheck.metadata
+      );
+      return NextResponse.json(
+        {
+          success: false,
+          error: subscriptionCheck.reason,
+          ...subscriptionCheck.metadata,
+        },
+        { status: subscriptionCheck.statusCode || 402 }
+      );
+    }
+
+    console.log("[API] Subscription check passed, proceeding with member addition");
 
     // Validate email domain matches organization domain (only if domain is set)
     if (org.domain && emailDomain !== org.domain) {

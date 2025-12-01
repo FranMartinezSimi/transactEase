@@ -73,20 +73,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // If successful, create or update subscription with free plan
+    // If successful, create or update subscription with early_adopter plan
     const { error: subError } = await supabase
       .from("subscriptions")
       .upsert({
         organization_id: profile.organization_id,
-        plan: "free",
+        plan: "early_adopter",
         status: "active",
-        max_deliveries_per_month: 10,
-        max_storage_gb: 1,
-        max_users: 1,
-        max_file_size: 10,
+        deliveries_limit: 10,  // 10 deliveries per month for early adopters
+        storage_limit_gb: 0.5,  // 500MB storage for early adopters
+        users_limit: 1,
+        max_file_size_mb: 10,
         ai_compliance_enabled: false,
-        deliveries_this_month: 0,
-        storage_used_gb: 0,
+        custom_branding: false,
+        api_access: false,
       }, {
         onConflict: "organization_id",
       });

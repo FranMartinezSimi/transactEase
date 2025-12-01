@@ -17,8 +17,6 @@ export default function CreateOrganizationPage() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [formData, setFormData] = useState({
     organizationName: "",
-    domain: "",
-    website: "",
   })
   const [showEarlyAdopterModal, setShowEarlyAdopterModal] = useState(false)
   const [earlyAdopterSlot, setEarlyAdopterSlot] = useState<{
@@ -107,8 +105,6 @@ export default function CreateOrganizationPage() {
         .insert({
           id: orgId,
           name: formData.organizationName.trim(),
-          domain: formData.domain.trim() || null,
-          website: formData.website.trim() || null,
           is_early_adopter: isEarlyAdopterAvailable,
           early_adopter_joined_at: isEarlyAdopterAvailable ? new Date().toISOString() : null,
           created_at: new Date().toISOString(),
@@ -196,7 +192,7 @@ export default function CreateOrganizationPage() {
         footer={
           <div className="w-full text-center">
             <p className="text-sm text-muted-foreground">
-              All fields except organization name are optional
+              You can customize settings later from your dashboard
             </p>
           </div>
         }
@@ -212,7 +208,7 @@ export default function CreateOrganizationPage() {
               <Input
                 id="organizationName"
                 type="text"
-                placeholder="Acme Inc."
+                placeholder="Your law firm, company, or organization name"
                 className="pl-10"
                 value={formData.organizationName}
                 onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
@@ -222,39 +218,9 @@ export default function CreateOrganizationPage() {
                 maxLength={100}
               />
             </div>
-          </div>
-
-          {/* Domain - Optional */}
-          <div className="space-y-2">
-            <Label htmlFor="domain">
-              Company Domain <span className="text-xs text-muted-foreground">(Optional)</span>
-            </Label>
-            <Input
-              id="domain"
-              type="text"
-              placeholder="acme.com"
-              value={formData.domain}
-              onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
-              disabled={isLoading}
-            />
             <p className="text-xs text-muted-foreground">
-              Used for email validation and branding
+              This will be shown to recipients when you send files
             </p>
-          </div>
-
-          {/* Website - Optional */}
-          <div className="space-y-2">
-            <Label htmlFor="website">
-              Website <span className="text-xs text-muted-foreground">(Optional)</span>
-            </Label>
-            <Input
-              id="website"
-              type="url"
-              placeholder="https://acme.com"
-              value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-              disabled={isLoading}
-            />
           </div>
 
           <Button

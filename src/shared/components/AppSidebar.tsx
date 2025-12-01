@@ -125,6 +125,13 @@ export function AppSidebar() {
     },
   ]
 
+  // Upgrade/Pricing link (for non-enterprise users)
+  const upgradePath = {
+    title: "Upgrade",
+    icon: CreditCard,
+    path: "/pricing",
+  }
+
   const handleSignOut = async () => {
     try {
       const response = await fetch("/api/auth/logout", {
